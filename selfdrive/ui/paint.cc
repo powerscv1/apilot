@@ -588,37 +588,38 @@ void ui_draw_radar_info(const UIState* s) {
     if (s->show_radar_info) {
         bool disp = false;
         int wStr = 40;
+        if (s->show_radar_info >= 3) {
+            for (auto const& vrd : s->scene.lead_vertices_stopped) {
+                auto [rx, ry, rd, rv, ry_rel] = vrd;
+                strcpy(str, "*");
+                ui_draw_text(s, rx, ry, str, 40, COLOR_WHITE, BOLD);
+                //wStr = 35;
+                //if (true) {
+                //    ui_fill_rect(s->vg, { (int)rx - wStr / 2, (int)ry - 35, wStr, 42 }, COLOR_BLACK, 15);
+                //}
+            }
+        }
         for (auto const& vrd : s->scene.lead_vertices_ongoing) {
             auto [rx, ry, rd, rv, ry_rel] = vrd;
             disp = true;
             sprintf(str, "%.0f", rv * 3.6);
-            wStr = 35 * (strlen(str) + 1);
+            wStr = 35 * (strlen(str) + 0);
             ui_fill_rect(s->vg, { (int)(rx - wStr / 2), (int)(ry - 35), wStr, 42 }, COLOR_GREEN, 15);
             ui_draw_text(s, rx, ry, str, 40, COLOR_WHITE, BOLD);
-            if (s->show_radar_info == 2) {
+            if (s->show_radar_info >= 2) {
                 sprintf(str, "%.1f", ry_rel);
-                ui_draw_text(s, rx, ry + 40, str, 40, COLOR_WHITE, BOLD);
+                ui_draw_text(s, rx, ry - 40, str, 30, COLOR_WHITE, BOLD);
             }
         }
         for (auto const& vrd : s->scene.lead_vertices_oncoming) {
             auto [rx, ry, rd, rv, ry_rel] = vrd;
             sprintf(str, "%.0f", rv * 3.6);
-            wStr = 35 * (strlen(str) + 1);
+            wStr = 35 * (strlen(str) + 0);
             ui_fill_rect(s->vg, { (int)rx - wStr / 2, (int)ry - 35, wStr, 42 }, COLOR_RED, 15);
             ui_draw_text(s, rx, ry, str, 40, COLOR_WHITE, BOLD);
-            if (s->show_radar_info == 2) {
+            if (s->show_radar_info >= 2) {
                 sprintf(str, "%.1f", ry_rel);
-                ui_draw_text(s, rx, ry + 40, str, 40, COLOR_WHITE, BOLD);
-            }
-        }
-        if (s->show_radar_info == 2) {
-            for (auto const& vrd : s->scene.lead_vertices_stopped) {
-                auto [rx, ry, rd, rv, ry_rel] = vrd;
-                strcpy(str, "*");
-                wStr = 35;
-                if (true) {
-                    ui_fill_rect(s->vg, { (int)rx - wStr / 2, (int)ry - 35, wStr, 42 }, COLOR_BLACK, 15);
-                }
+                ui_draw_text(s, rx, ry - 40, str, 30, COLOR_WHITE, BOLD);
             }
         }
     }
@@ -632,9 +633,9 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
     const UIScene& scene = s->scene;
     auto leads = model.getLeadsV3();
 #ifndef __TEST
-    const cereal::ModelDataV2::LeadDataV3::Reader& lead_data = leads[0];
+    //const cereal::ModelDataV2::LeadDataV3::Reader& lead_data = leads[0];
 #endif
-    const QPointF& vd = s->scene.lead_vertices[0];
+    //const QPointF& vd = s->scene.lead_vertices[0];
     //bool is_radar = s->scene.lead_radar[0];
     bool no_radar = leads[0].getProb() < .5;
     bool    uiDrawSteeringRotate = s->show_steer_rotate;
@@ -753,14 +754,29 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
     // 과녁을 표시할 위치를 계산
     int icon_size = 256;
 #ifdef __TEST
-    const int d_rel = 0;
+    //const int d_rel = 0;
     static int test_seq = 0;
     if (++test_seq > 100) test_seq = 0;
 #else
-    const int d_rel = lead_data.getX()[0];
+    //const int d_rel = lead_data.getX()[0];
 #endif
     int x = path_x;
     int y = path_y;
+#if 1
+    y = path_y - 135;
+    if (y > s->fb_h - 400) y = s->fb_h - 400;
+
+    if (s->show_mode == 2) {
+        y = s->fb_h - 400;
+        x = path_bx;
+    }
+
+    x = std::clamp((float)x, 550.f, s->fb_w - 550.f);
+
+    filter_x = x;
+    filter_y = y;
+
+#else
     if (!no_radar) {
         x = std::clamp((float)vd.x(), 550.f, s->fb_w - 550.f);
         y = std::clamp((float)vd.y(), 300.f, s->fb_h - 180.f);
@@ -780,12 +796,11 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
         x = path_bx;
     }
 
-    //filter_x = filter_x * 0.96 + x * 0.04;
-    //filter_y = filter_y * 0.96 + y * 0.04;
-    filter_x = x;
-    filter_y = y;
+    filter_x = filter_x * 0.96 + x * 0.04;
+    filter_y = filter_y * 0.96 + y * 0.04;
     x = filter_x;
     y = filter_y;
+#endif
     // 신호등(traffic)그리기.
     // 신호등내부에는 레이더거리, 비젼거리, 정지거리, 신호대기 표시함.
     int circle_size = 160;
@@ -1027,7 +1042,10 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
             //ui_draw_text(s, x, y + 210, str, 40, COLOR_WHITE, BOLD, 1.0, 3.0, borderColor, COLOR_BLACK);
 #endif
         }
-        ui_draw_image(s, { x - icon_size / 2, y - icon_size / 2, icon_size, icon_size }, (no_radar) ? "ic_radar_no" : (radar_detected) ? "ic_radar" : "ic_radar_vision", 1.0f);
+        if (s->show_mode >= 4) {
+            if(!no_radar) ui_draw_image(s, { x - icon_size / 2, y - icon_size / 2, icon_size, icon_size }, (radar_detected) ? "ic_radar" : "ic_radar_vision", 1.0f);
+        }
+        else ui_draw_image(s, { x - icon_size / 2, y - icon_size / 2, icon_size, icon_size }, (no_radar) ? "ic_radar_no" : (radar_detected) ? "ic_radar" : "ic_radar_vision", 1.0f);
 
         if (no_radar) {
             if (stop_dist > 0.5 && stopping) {
