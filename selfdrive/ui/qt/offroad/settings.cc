@@ -770,11 +770,7 @@ TuningPanel::TuningPanel(QWidget* parent) : QWidget(parent) {
     toggleLayout->addWidget(horizontal_line());
     toggleLayout->addWidget(new CValueControl("TrafficStopAccel", "STOPPING: DECEL. rate (80%)", "신호를 만나면 서서히 감속하여 정지합니다.", "../assets/offroad/icon_road.png", 10, 120, 10));
     toggleLayout->addWidget(new CValueControl("ApplyModelDistOrder", "STOPPING: DECEL. model (29)", "숫자가적을수록 미리감속하고 서서히 정지합니다.", "../assets/offroad/icon_road.png", 1, 32, 1));
-    //toggleLayout->addWidget(new ParamControl("TrafficStopModelSpeed", "신호정지 모델속도(OFF)", "신호정지시 모델에서 제공하는 속도를 따름니다.", "../assets/offroad/icon_road.png", this));
-    toggleLayout->addWidget(new CValueControl("E2eDecelSpeed", "모델의 자동속도 적용(0)", "지정속도 이하에서는 모델이 제공하는 속도를 적용합니다. 0: 적용안함.", "../assets/offroad/icon_road.png", 0, 120, 10));
     toggleLayout->addWidget(horizontal_line());
-    //toggleLayout->addWidget(new CValueControl("AccelLimitEcoSpeed", "초기가속제한 속도(3km/h)", "지정속도까지 가속도를 제한합니다. 출발시 충격 방지!!", "../assets/offroad/icon_road.png", 0, 100, 1));
-    //toggleLayout->addWidget(new ParamControl("AccelLimitConfusedModel", "모델혼잡시 조향가속비율적용(ON)", "E2E모드에서 모델예측이 20M이내인경우 가속을 제한합니다.", "../assets/offroad/icon_road.png", this));
     toggleLayout->addWidget(new CValueControl("CruiseMaxVals1", "ACCEL:0km/h(200)", "속도별 가속도를 지정합니다.(x0.01m/s^2)", "../assets/offroad/icon_road.png", 1, 250, 5));
     toggleLayout->addWidget(new CValueControl("CruiseMaxVals2", "ACCEL:40km/h(150)", "속도별 가속도를 지정합니다.(x0.01m/s^2)", "../assets/offroad/icon_road.png", 1, 250, 5));
     toggleLayout->addWidget(new CValueControl("CruiseMaxVals3", "ACCEL:60km/h(50)", "속도별 가속도를 지정합니다.(x0.01m/s^2)", "../assets/offroad/icon_road.png", 1, 250, 5));
