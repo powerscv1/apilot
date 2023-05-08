@@ -252,7 +252,7 @@
       "name": "JerkUpperLowerLimit",
       "title": "JERK값 (8)",
       "descr": "값이 커지면 가감속반응이 빨라집니다.",
-      "min": 5,
+      "min": 1,
       "max": 50,
       "default": 8,
       "unit": 1
