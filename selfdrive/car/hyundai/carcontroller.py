@@ -190,10 +190,6 @@ class CarController:
                                                 hud_control.leftLaneVisible, hud_control.rightLaneVisible,
                                                 left_lane_warning, right_lane_warning))
 
-      ##HW: 임시로 코드넣음.. 나중에  MDPS 저속(60kmh)개조 된것들은 넣어줘야함.
-      if self.frame % 2 == 0 and False: # and self.mdpsMode:
-        can_sends.append(hyundaican.create_clu11_mdps(self.packer, self.frame, CS.clu11, Buttons.NONE, self.CP.carFingerprint, 60))
-
       if not self.CP.openpilotLongitudinalControl:
         if CC.cruiseControl.cancel:
           can_sends.append(hyundaican.create_clu11(self.packer, self.frame, CS.clu11, Buttons.CANCEL, self.CP.carFingerprint))

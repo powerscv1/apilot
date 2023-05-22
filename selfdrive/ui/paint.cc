@@ -40,6 +40,8 @@
 
 #define BOLD "KaiGenGothicKR-Bold"//"Inter-Bold"//"sans-bold"
 
+int g_fps= 0;
+
 #if 0
 static void ui_print(UIState *s, int x, int y,  const char* fmt, ... )
 {
@@ -149,16 +151,60 @@ static void ui_draw_bsd(const UIState* s, const QPolygonF& vd, NVGcolor* color, 
     }
 
 }
+template <class T>
+float interp(float x, std::initializer_list<T> x_list, std::initializer_list<T> y_list, bool extrapolate)
+{
+    std::vector<T> xData(x_list);
+    std::vector<T> yData(y_list);
+    int size = xData.size();
+
+    int i = 0;
+    if (x >= xData[size - 2]) {
+        i = size - 2;
+    }
+    else {
+        while (x > xData[i + 1]) i++;
+    }
+    T xL = xData[i], yL = yData[i], xR = xData[i + 1], yR = yData[i + 1];
+    if (!extrapolate) {
+        if (x < xL) yR = yL;
+        if (x > xR) yL = yR;
+    }
+
+    T dydx = (yR - yL) / (xR - xL);
+    return yL + dydx * (x - xL);
+}
 #if 0
+template <class T>
+float interp(float x, const T* x_list, const T* y_list, size_t size, bool extrapolate)
+{
+    int i = 0;
+    if (x >= x_list[size - 2]) {
+        i = size - 2;
+    }
+    else {
+        while (x > x_list[i + 1]) i++;
+    }
+    T xL = x_list[i], yL = y_list[i], xR = x_list[i + 1], yR = y_list[i + 1];
+    if (!extrapolate) {
+        if (x < xL) yR = yL;
+        if (x > xR) yL = yR;
+    }
+
+    T dydx = (yR - yL) / (xR - xL);
+    return yL + dydx * (x - xL);
+}
 static void ui_draw_path(const UIState* s) {
-    auto plan_position = (*s->sm)["uiPlan"].getUiPlan().getPosition();
+    const UIScene& scene = s->scene;
+    SubMaster& sm = *(s->sm);
+    auto plan_position = sm["uiPlan"].getUiPlan().getPosition();
     if (plan_position.getX().size() < 33) {
-        plan_position = (*s->sm)["modelV2"].getModelV2().getPosition();
+        plan_position = sm["modelV2"].getModelV2().getPosition();
     }
     float max_distance = std::clamp(plan_position.getX()[TRAJECTORY_SIZE - 1],
         MIN_DRAW_DISTANCE, MAX_DRAW_DISTANCE);
 
-    auto lead_one = (*s->sm)["radarState"].getRadarState().getLeadOne();
+    auto lead_one = sm["radarState"].getRadarState().getLeadOne();
     if (lead_one.getStatus()) {
         const float lead_d = lead_one.getDRel() * 2.;
         max_distance = std::clamp((float)(lead_d - fmin(lead_d * 0.35, 10.)), 0.0f, max_distance);
@@ -192,6 +238,9 @@ static void ui_draw_path(const UIState* s) {
             dist = start_dist;
         }
 
+        if (forward) pos_t[i] = (pos_t[i] + 1) % (int)max_t;
+        else if (--pos_t[i] < 0) pos_t[i] = (int)max_t - 1;
+    }
     // 0~150M까지 display해준다... 
     // 높이시작은 0.8 ~ s->show_z_offset(max_distance)
 
@@ -1418,6 +1467,40 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
     brake_valid = brake_valid;
     longActiveUserReady = longActiveUserReady;
 }
+void DrawApilot::drawDeviceState(UIState* s) {
+    const SubMaster& sm = *(s->sm);
+    auto deviceState = sm["deviceState"].getDeviceState();
+    char  str[128];
+    QString qstr;
+    const auto freeSpacePercent = deviceState.getFreeSpacePercent();
+    const auto memoryUsagePercent = deviceState.getMemoryUsagePercent();
+
+    const auto cpuTempC = deviceState.getCpuTempC();
+    //const auto gpuTempC = deviceState.getGpuTempC();
+    float ambientTemp = deviceState.getAmbientTempC();
+    float cpuTemp = 0.f;
+    //float gpuTemp = 0.f;
+
+    if (std::size(cpuTempC) > 0) {
+        for (int i = 0; i < std::size(cpuTempC); i++) {
+            cpuTemp += cpuTempC[i];
+        }
+        cpuTemp = cpuTemp / (float)std::size(cpuTempC);
+    }
+    auto car_state = sm["carState"].getCarState();
+    sprintf(str, "MEM: %d%% STORAGE: %.0f%% CPU: %.0f°C AMBIENT: %.0f°C", memoryUsagePercent, freeSpacePercent, cpuTemp, ambientTemp);
+    int r = interp<float>(cpuTemp, { 50.f, 90.f }, { 200.f, 255.f }, false);
+    int g = interp<float>(cpuTemp, { 50.f, 90.f }, { 255.f, 200.f }, false);
+    NVGcolor textColor = nvgRGBA(r, g, 200, 255);
+    if (s->fb_w > 1200) {
+        ui_draw_text(s, s->fb_w - 450, 35, str, 35, textColor, BOLD);
+        float engineRpm = car_state.getEngineRpm();
+        float motorRpm = car_state.getMotorRpm();
+        sprintf(str, "FPS: %d, %s: %.0f CHARGE: %.0f%%", g_fps, (motorRpm > 0.0) ? "MOTOR" : "RPM", (motorRpm > 0.0) ? motorRpm : engineRpm, car_state.getChargeMeter());
+        ui_draw_text(s, s->fb_w - 350, 90, str, 35, textColor, BOLD);
+    }
+
+}
 void DrawApilot::drawDebugText(UIState* s) {
     if (s->fb_w < 1200) return;
     const SubMaster& sm = *(s->sm);
@@ -1460,6 +1543,8 @@ DrawApilot::DrawApilot() {
 
 }
 DrawApilot* drawApilot;
+Alert alert;
+NVGcolor alert_color;
 void ui_draw(UIState *s, int w, int h) {
   // Update intrinsics matrix after possible wide camera toggle change
   if (s->fb_w != w || s->fb_h != h) {
@@ -1474,6 +1559,7 @@ void ui_draw(UIState *s, int w, int h) {
   drawApilot->drawLaneLines(s);
   drawApilot->drawLeadApilot(s);
   if (s->show_debug) drawApilot->drawDebugText(s);
+  if (s->show_device_stat) drawApilot->drawDeviceState(s);
 
   //ui_draw_vision(s);
   //dashcam(s);
@@ -1482,9 +1568,23 @@ void ui_draw(UIState *s, int w, int h) {
   //nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
   //ui_print(s, s->fb_w/2, s->fb_h/2, "%s", "APILOT");
 
+  ui_draw_alert(s);
+
   nvgResetScissor(s->vg);
   nvgEndFrame(s->vg);
   glDisable(GL_BLEND);
+}
+void ui_draw_alert(UIState* s) {
+    if (alert.size != cereal::ControlsState::AlertSize::NONE) {
+        alert_color = COLOR_ORANGE;
+        ui_draw_text(s, s->fb_w / 2, s->fb_h - 300, alert.text1.toStdString().c_str(), 100, alert_color, BOLD, 3.0f, 8.0f);
+        ui_draw_text(s, s->fb_w / 2, s->fb_h - 200, alert.text2.toStdString().c_str(), 70, alert_color, BOLD, 3.0f, 8.0f);
+    }
+}
+void ui_update_alert(const Alert& a, const QColor& color) {
+    alert_color = nvgRGBA(color.red(), color.green(), color.blue(), color.alpha());
+    //printf("r=%d, g=%d, b=%d\n", color.red(), color.green(), color.blue());
+    alert = a;
 }
 
 void ui_nvg_init(UIState *s) {

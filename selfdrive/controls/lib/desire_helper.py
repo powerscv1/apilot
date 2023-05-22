@@ -129,7 +129,7 @@ class DesireHelper:
         self.desireEvent_prev = 0
         self.lane_change_direction = LaneChangeDirection.none
         self.turnControlState = False
-        if one_blinker and (not self.prev_one_blinker or v_ego_kph < 4): # or steering_pressed):  ##깜박이가 켜진시점에 검사, 정지상태에서는 lat_active가 아님. 깜박이켠방향으로 핸들을 돌림(x).
+        if one_blinker and (not self.prev_one_blinker or v_ego_kph < 4 or (checkAutoTurnEnabled and steering_pressed)):  ##깜박이가 켜진시점에 검사, 정지상태에서는 lat_active가 아님. 
           # 정지상태, 출발할때
           if v_ego_kph < 4.0:
             if self.autoTurnControl > 0: 

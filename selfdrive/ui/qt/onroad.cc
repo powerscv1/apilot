@@ -92,7 +92,8 @@ void OnroadWindow::updateState(const UIState &s) {
     } else if (alert.type == "controlsUnresponsivePermanent") {
       bgColor = bg_colors[STATUS_DISENGAGED];
     }
-    alerts->updateAlert(alert, bgColor);
+    //alerts->updateAlert(alert, bgColor);
+    ui_update_alert(alert, bgColor);
   }
 
   if (s.scene.map_on_left) {
@@ -209,7 +210,8 @@ void OnroadWindow::offroadTransition(bool offroad) {
   }
 #endif
 
-  alerts->updateAlert({}, bg);
+  //alerts->updateAlert({}, bg);
+  ui_update_alert({}, bg);
 
   // update stream type
   bool wide_cam = Hardware::TICI() && Params().getBool("EnableWideCamera");
@@ -238,7 +240,7 @@ void OnroadAlerts::updateAlert(const Alert &a, const QColor &color) {
 
 void OnroadAlerts::paintEvent(QPaintEvent *event) {
   if (alert.size == cereal::ControlsState::AlertSize::NONE) {
-      return;
+    return;
   }
   static std::map<cereal::ControlsState::AlertSize, const int> alert_sizes = {
     {cereal::ControlsState::AlertSize::SMALL, 271},
@@ -531,7 +533,7 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
     case 0: drawHud(p, model); break;
     default: 
         ui_draw(s, width(), height()); 
-        if (s->show_device_stat) drawDeviceState(p);
+        //if (s->show_device_stat) drawDeviceState(p);
         //drawTurnSignals(p);
         //drawGpsStatus(p);
 #ifdef __TEST
@@ -556,6 +558,8 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
   double dt = cur_draw_t - prev_draw_t;
   double fps = fps_filter.update(1. / dt * 1000);
   m_fps = fps;
+  extern int g_fps;
+  g_fps = fps;
   if (fps < 15) {
     LOGW("slow frame rate: %.2f fps", fps);
   }
