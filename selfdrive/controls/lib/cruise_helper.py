@@ -327,9 +327,6 @@ class CruiseHelper:
     orientationRates = np.array(controls.sm['modelV2'].orientationRate.z, dtype=np.float32)
     # 계산된 결과로, oritetationRates를 나누어 조금더 curvature값이 커지도록 함.
     speed = min(self.turnSpeed_prev / 3.6, clip(CS.vEgo, 0.5, 100.0))
-    speed_diff = max(0, CS.vEgo - speed)
-    # 결과속도와 현재속도의 차이로 좀더 curvature값이 커지도록 함.
-    speed = clip(speed - speed_diff * self.autoCurveSpeedFactorIn, 0.5, 100.0)
     # 12: 약1.4초 미래의 curvature를 계산함.
     curvature = np.max(np.abs(orientationRates[12:])) / speed
     curvature = self.curvatureFilter.process(curvature) * self.autoCurveSpeedFactor
@@ -340,8 +337,10 @@ class CruiseHelper:
     else:
       turnSpeed = 300
 
-    controls.debugText1 = 'CURVE={:5.1f},curvature={:5.4f}'.format(turnSpeed, curvature)
     self.turnSpeed_prev = turnSpeed
+    speed_diff = max(0, CS.vEgo*3.6 - turnSpeed)
+    turnSpeed = turnSpeed - speed_diff * self.autoCurveSpeedFactorIn
+    controls.debugText1 = 'CURVE={:5.1f},curvature={:5.4f}'.format(self.turnSpeed_prev, curvature)
     return turnSpeed
 
   def apilot_curve_old(self, CS, controls):
