@@ -481,6 +481,7 @@ class LongitudinalMpc:
       cruise_target = T_IDXS * np.clip(v_cruise, v_ego - 2.0, 1e3) + x[0]
       xforward = ((v[1:] + v[:-1]) / 2) * (T_IDXS[1:] - T_IDXS[:-1])
       x = np.cumsum(np.insert(xforward, 0, x[0]))
+      self.debugLongText1 = "A{:3.2f},L0{:5.1f},C{:5.1f},X{:5.1f},F{:5.1f}".format(self.max_a, lead_0_obstacle[0], cruise_target[0], x[0], xforward[0])
 
       x_and_cruise = np.column_stack([x, cruise_target])
       x = np.min(x_and_cruise, axis=1)
@@ -643,23 +644,23 @@ class LongitudinalMpc:
   def check_model_stopping(self, carstate, v, v_ego, model_x, y):
     v_ego_kph = v_ego * CV.MS_TO_KPH
     model_v = self.vFilter.process(v[-1])
-    startSign = model_v > 5.0 or model_v > (v[0]+2)
+    startSign = (model_v > 5.0 or model_v > (v[0]+2)) # and model_x > 50.0
     if v_ego_kph < 1.0: 
       stopSign = model_x < 20.0 and model_v < 10.0
     elif v_ego_kph < 80.0:
       if self.trafficDetectBrightness < self.lightSensor:
-        stopSign = model_x < 110.0 and ((model_v < 3.0) or (model_v < v[0]*0.6)) and abs(y[-1]) < 5.0
+        stopSign = model_x < 110.0 and ((model_v < 3.0) or (model_v < v[0]*0.6)) and abs(y[-1]) < 10.0
       else:
-        stopSign = model_x < 130.0 and ((model_v < 3.0) or (model_v < v[0]*0.7)) and abs(y[-1]) < 5.0
+        stopSign = model_x < 130.0 and ((model_v < 3.0) or (model_v < v[0]*0.7)) and abs(y[-1]) < 10.0
     else:
       stopSign = False
 
     self.stopSignCount = self.stopSignCount + 1 if (stopSign and (model_x > get_safe_obstacle_distance(v_ego, t_follow=0, comfort_brake=COMFORT_BRAKE, stop_distance=-1.0))) else 0
-    self.startSignCount = self.startSignCount + 1 if startSign else 0
+    self.startSignCount = self.startSignCount + 1 if startSign and not stopSign else 0
 
     if self.stopSignCount * DT_MDL > 0.0 and carstate.rightBlinker == False:
       self.trafficState = 1
-    elif self.startSignCount * DT_MDL > 0.3:
+    elif self.startSignCount * DT_MDL > 0.5:
       self.trafficState = 2  
     else:
       self.trafficState = 0
@@ -810,6 +811,8 @@ class LongitudinalMpc:
         self.trafficError = True
       elif cruiseButtonCounterDiff != 0: #신호감지무시중 버튼이 눌리면 다시 재개함.
         self.xState = XState.e2eCruise
+      elif v_ego_kph < 1.0 and self.trafficState == 1:  ## 출발신호이지만.... 정지신호로 바뀐경우(모델신호 변심) 다시 정지하는걸로..
+        self.xState = XState.e2eStop
       elif (v_ego_kph > 30.0 and (stop_x > 60.0 and abs(y[-1])<2.0)):
         self.xState = XState.e2eCruise
       else:

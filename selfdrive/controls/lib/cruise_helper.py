@@ -132,6 +132,7 @@ class CruiseHelper:
     self.cruiseControlMode = int(Params().get("CruiseControlMode", encoding="utf8"))
     self.cruiseOnDist = float(int(Params().get("CruiseOnDist", encoding="utf8"))) / 100.
     self.steerRatioApply = float(int(Params().get("SteerRatioApply", encoding="utf8"))) / 10.
+    self.lateralTorqueCustom = Params().get_bool("LateralTorqueCustom")
 
   def update_params(self, frame):
     if frame % 20 == 0:
@@ -163,6 +164,7 @@ class CruiseHelper:
         self.longControlActiveSound = int(Params().get("LongControlActiveSound"))
       elif self.update_params_count == 8:
         self.autoSpeedUptoRoadSpeedLimit = float(int(Params().get("AutoSpeedUptoRoadSpeedLimit", encoding="utf8"))) / 100.
+        self.lateralTorqueCustom = Params().get_bool("LateralTorqueCustom")
       elif self.update_params_count == 9:
         self.autoSpeedAdjustWithLeadCar = float(int(Params().get("AutoSpeedAdjustWithLeadCar", encoding="utf8"))) / 1.
       elif self.update_params_count == 10:
