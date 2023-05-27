@@ -271,6 +271,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     { "TrafficStopModelSpeed", PERSISTENT },
     { "TrafficStopMode", PERSISTENT },
     { "CruiseButtonMode", PERSISTENT },
+    { "CruiseSpeedUnit", PERSISTENT },
     { "GapButtonMode", PERSISTENT },
     { "PrevCruiseGap", PERSISTENT },
     { "CruiseSpeedMin", PERSISTENT },
