@@ -648,20 +648,21 @@ class LongitudinalMpc:
     startSign = (model_v > 5.0 or model_v > (v[0]+2)) # and model_x > 50.0
 
     ## 시그널이 10M이상 떨리면... 신호가 잘못된걸로...
-    if (self.prev_x - model_x) > 10:
-      startSign = False
+    #if (self.prev_x - model_x) > 10:
+    #  startSign = False
     self.prev_x = model_x
     if v_ego_kph < 1.0: 
       stopSign = model_x < 20.0 and model_v < 10.0
     elif v_ego_kph < 80.0:
       if self.trafficDetectBrightness < self.lightSensor:
-        stopSign = model_x < 110.0 and ((model_v < 3.0) or (model_v < v[0]*0.6)) and abs(y[-1]) < 10.0
+        stopSign = model_x < 110.0 and ((model_v < 3.0) or (model_v < v[0]*0.6)) and abs(y[-1]) < 20.0
       else:
-        stopSign = model_x < 130.0 and ((model_v < 3.0) or (model_v < v[0]*0.7)) and abs(y[-1]) < 10.0
+        stopSign = model_x < 130.0 and ((model_v < 3.0) or (model_v < v[0]*0.7)) and abs(y[-1]) < 20.0
     else:
       stopSign = False
 
-    self.stopSignCount = self.stopSignCount + 1 if (stopSign and (model_x > get_safe_obstacle_distance(v_ego, t_follow=0, comfort_brake=COMFORT_BRAKE, stop_distance=-1.0))) else 0
+    #self.stopSignCount = self.stopSignCount + 1 if (stopSign and (model_x > get_safe_obstacle_distance(v_ego, t_follow=0, comfort_brake=COMFORT_BRAKE, stop_distance=-1.0))) else 0
+    self.stopSignCount = self.stopSignCount + 1 if stopSign else 0
     self.startSignCount = self.startSignCount + 1 if startSign and not stopSign else 0
 
     if self.stopSignCount * DT_MDL > 0.0 and carstate.rightBlinker == False:
@@ -757,12 +758,12 @@ class LongitudinalMpc:
       if carstate.gasPressed:
         self.xState = XState.e2eCruisePrepare
         stop_x = 1000.0
-      elif self.trafficStopMode==2:
-        if self.trafficState == 2:
-          if v_ego_kph > 30:
-             self.xState = XState.e2eCruise
-          elif carstate.aEgo > 1.0:
-            self.mpcEvent = EventName.trafficSignGreen
+      #elif self.trafficStopMode==2:
+      #  if self.trafficState == 2:
+      #    if v_ego_kph > 30:
+      #       self.xState = XState.e2eCruise
+      #    elif True:#carstate.aEgo > 1.0:
+      #      self.mpcEvent = EventName.trafficSignGreen
       else:
         if v_ego < 0.1:
           if self.trafficDetectBrightness < self.lightSensor:
@@ -820,7 +821,7 @@ class LongitudinalMpc:
       elif v_ego_kph < 2.0 and (self.trafficState != 2 or cruiseButtonCounterDiff > 0):  ## 출발신호이지만.... 정지신호로 바뀐경우(모델신호 변심) 다시 정지하는걸로..
         self.xState = XState.e2eStop
         self.stopDist = 2.0
-      elif (v_ego_kph > 30.0 and (stop_x > 60.0 and abs(y[-1])<2.0)):
+      elif (v_ego_kph > 5.0 and (stop_x > 60.0 and abs(y[-1])<2.0)):
         self.xState = XState.e2eCruise
       else:
         #self.trafficState = 0
@@ -843,7 +844,8 @@ class LongitudinalMpc:
         stop_x = 1000.0
 
     if self.trafficStopMode == 2:
-      mode = 'blended' if self.xState in [XState.e2eStop, XState.e2eCruisePrepare] else 'acc'
+      #mode = 'blended' if self.xState in [XState.e2eStop, XState.e2eCruisePrepare] else 'acc'
+      mode = 'blended' if self.xState in [XState.e2eCruisePrepare] else 'acc'
 
     self.comfort_brake *= self.mySafeModeFactor
     self.longActiveUser = controls.longActiveUser
