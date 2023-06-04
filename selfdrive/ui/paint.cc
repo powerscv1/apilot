@@ -985,7 +985,7 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
                 }
             }
             else ui_draw_image(s, { x - icon_size / 2, y - icon_size / 2, icon_size, icon_size }, "ic_steer_momo", 0.7f);
-            bgColor = nvgRGBA(0, 0, 0, 160);
+            bgColor = nvgRGBA(0, 0, 0, 0);
         }
         else if (s->show_steer_mode == 0) {            
             if (uiDrawSteeringRotate) {      
@@ -993,10 +993,10 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
             }
             else ui_draw_image(s, { x - icon_size / 2, y - icon_size / 2, icon_size, icon_size }, "ic_steer_momo", 0.7f);
             switch (trafficMode) {
-            case 0: bgColor = nvgRGBA(0, 0, 0, 90); break;
-            case 1: bgColor = nvgRGBA(255, 0, 0, 160); break;
-            case 2: bgColor = nvgRGBA(0, 255, 0, 160); break;
-            case 3: bgColor = nvgRGBA(255, 255, 0, 160); break;
+            case 0: bgColor = nvgRGBA(0, 0, 0, 0); break;
+            case 1: bgColor = nvgRGBA(255, 0, 0, 100); break;
+            case 2: bgColor = nvgRGBA(0, 255, 0, 100); break;
+            case 3: bgColor = nvgRGBA(255, 255, 0, 100); break;
             }
         }
         else {
@@ -1480,7 +1480,7 @@ void DrawApilot::drawDeviceState(UIState* s) {
         ui_draw_text(s, s->fb_w - 20, 35, str, 35, textColor, BOLD);
         float engineRpm = car_state.getEngineRpm();
         float motorRpm = car_state.getMotorRpm();
-        sprintf(str, "FPS: %d, %s: %.0f CHARGE: %.0f%%", g_fps, (motorRpm > 0.0) ? "MOTOR" : "RPM", (motorRpm > 0.0) ? motorRpm : engineRpm, car_state.getChargeMeter());
+        sprintf(str, "FPS: %d, %s: %.0f CHARGE: %.0f%%                      ", g_fps, (motorRpm > 0.0) ? "MOTOR" : "RPM", (motorRpm > 0.0) ? motorRpm : engineRpm, car_state.getChargeMeter());
         ui_draw_text(s, s->fb_w - 20, 90, str, 35, textColor, BOLD);
     }
 
@@ -1493,7 +1493,7 @@ void DrawApilot::drawDebugText(UIState* s) {
 
     nvgTextAlign(s->vg, NVG_ALIGN_RIGHT | NVG_ALIGN_BOTTOM);
 
-    int y = 150, dy = 40;
+    int y = 350, dy = 40;
 
     const int text_x = s->fb_w - 20;
     const auto live_torque_params = sm["liveTorqueParameters"].getLiveTorqueParameters();

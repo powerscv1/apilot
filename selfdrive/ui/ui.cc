@@ -511,7 +511,7 @@ void update_model(UIState *s,
   if (longActiveUser <= 0) show_path_mode = s->show_path_mode_cruise_off;
 
   max_idx = get_path_length_idx(plan_position, max_distance);
-  if (show_path_mode == 0) {
+  if (show_path_mode == 0 || s->show_mode == 0) {
       //update_line_data(s, plan_position, s->show_path_width, s->show_z_offset, s->show_z_offset, &scene.track_vertices, max_idx, false);
       update_line_data2(s, plan_position, s->show_path_width, 0.8, s->show_z_offset, &scene.track_vertices, max_idx);
       update_path_end(s, plan_position, &scene.path_end_vertices, 0.8, s->show_z_offset, max_idx);
@@ -639,6 +639,9 @@ static void update_state(UIState *s) {
 
 void ui_update_params(UIState *s) {
   auto params = Params();
+  s->scene.is_metric = params.getBool("IsMetric");
+  s->scene.map_on_left = params.getBool("NavSettingLeftSide");
+  
   static int updateSeq = 0;
   if (updateSeq++ > 100) updateSeq = 0;
   switch(updateSeq) {
@@ -728,11 +731,10 @@ void UIState::updateStatus() {
 UIState::UIState(QObject *parent) : QObject(parent) {
   sm = std::make_unique<SubMaster, const std::initializer_list<const char *>>({
     "modelV2", "controlsState", "liveCalibration", "radarState", "deviceState", "roadCameraState",
-    "pandaStates", "carParams", "driverMonitoringState", "sensorEvents", "carState", "liveLocationKalman", "driverState",
-    "wideRoadCameraState", "lateralPlan", "longitudinalPlan",
-    "gpsLocationExternal", "carControl", "liveParameters", "roadLimitSpeed",
-    "uiPlan",
-    "liveTorqueParameters",    
+    "pandaStates", "carParams", "driverMonitoringState", "carState", "liveLocationKalman", "driverState",
+    "wideRoadCameraState", "managerState", "navInstruction", "navRoute", "uiPlan",
+    "lateralPlan", "longitudinalPlan", "gpsLocationExternal", "carControl", "liveParameters", "roadLimitSpeed",
+    "liveTorqueParameters", "sensorEvents",
   });
 
   Params params;
