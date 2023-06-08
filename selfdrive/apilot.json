@@ -436,9 +436,9 @@
       "group": "감속제어",
       "name": "TrafficStopMode",
       "title": "신호정지 방법 (1)",
-      "descr": "0:사용안함,1:Apilot모드,2:Mix 실험적모드",
+      "descr": "0:사용안함,1:사용함",
       "min": 0,
-      "max": 2,
+      "max": 1,
       "default": 1,
       "unit": 1
     },
@@ -450,16 +450,6 @@
       "min": 1,
       "max": 32,
       "default": 32,
-      "unit": 1
-    },
-    {
-      "group": "감속제어",
-      "name": "TrafficStopUpdateDist",
-      "title": "신호정지선 갱신 거리 (2M)",
-      "descr": "숫자가 작을수록 정확히(모델의 위치) 감속합니다. 하지만 정지충격이 발생할수 있습니다.",
-      "min": 1,
-      "max": 30,
-      "default": 2,
       "unit": 1
     },
     {
@@ -926,7 +916,7 @@
       "group": "화면",
       "name": "ShowPlotMode",
       "title": "디버그플롯(0)",
-      "descr": "",
+      "descr": "1:가속도,2:조향가속도,3:속도,4:모델x",
       "min": 0,
       "max": 5,
       "default": 0,
