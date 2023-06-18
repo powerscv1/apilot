@@ -245,8 +245,8 @@ void ExperimentalButton::updateState(const UIState &s) {
   setChecked(source == cereal::LongitudinalPlan::LongitudinalPlanSource::E2E);
 
   // disable button when experimental mode is not available, or has not been confirmed for the first time
-  const auto cp = sm["carParams"].getCarParams();
-  const bool experimental_mode_available = cp.getExperimentalLongitudinalAvailable() ? params.getBool("ExperimentalLongitudinalEnabled") : cp.getOpenpilotLongitudinalControl();
+  //const auto cp = sm["carParams"].getCarParams();
+  //const bool experimental_mode_available = cp.getExperimentalLongitudinalAvailable() ? params.getBool("ExperimentalLongitudinalEnabled") : cp.getOpenpilotLongitudinalControl();
   //setEnabled(params.getBool("ExperimentalModeConfirmed") && experimental_mode_available);
   setEnabled(true);
 }
