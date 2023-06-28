@@ -26,8 +26,10 @@ class Port:
 class RoadLimitSpeedServer:
   def __init__(self):
     self.json_road_limit = None
+    self.json_apilot = None
     self.active = 0
     self.last_updated = 0
+    self.last_updated_apilot = 0
     self.last_updated_active = 0
     self.last_exception = None
     self.lock = threading.Lock()
@@ -154,6 +156,7 @@ class RoadLimitSpeedServer:
       if ret:
         data, self.remote_addr = sock.recvfrom(2048)
         json_obj = json.loads(data.decode())
+        print(json_obj)
 
         if 'cmd' in json_obj:
           try:
@@ -193,6 +196,10 @@ class RoadLimitSpeedServer:
             self.json_road_limit = json_obj['road_limit']
             self.last_updated = sec_since_boot()
 
+          if 'apilot' in json_obj:
+            self.json_apilot = json_obj['apilot']
+            self.last_updated_apilot = sec_since_boot()
+
         finally:
           self.lock.release()
 
@@ -215,11 +222,23 @@ class RoadLimitSpeedServer:
       finally:
         self.lock.release()
 
+    if now - self.last_updated_apilot > 6.:
+      try:
+        self.lock.acquire()
+        self.json_apilot = None
+      finally:
+        self.lock.release()
+
     if now - self.last_updated_active > 6.:
       self.active = 0
 
+
   def get_limit_val(self, key, default=None):
     return self.get_json_val(self.json_road_limit, key, default)
+
+  def get_apilot_val(self, key, default=None):
+    return self.get_json_val(self.json_apilot, key, default)
+
 
   def get_json_val(self, json, key, default=None):
 
@@ -239,6 +258,41 @@ class RoadLimitSpeedServer:
 def main():
   server = RoadLimitSpeedServer()
   roadLimitSpeed = messaging.pub_sock('roadLimitSpeed')
+
+  apilot_val = {
+    'opkrturninfo': {
+      'value': -1,
+      'timestamp': 0
+    },
+    'opkrdistancetoturn': {
+      'value': -1,
+      'timestamp': 0
+      },
+    'opkrspddist':{
+      'value': -1,
+      'timestamp': 0
+      },
+    'opkrspdlimit':{
+      'value': -1,
+      'timestamp': 0
+      },
+    'opkrsigntype':{
+      'value': -1,
+      'timestamp': 0
+      },
+    'opkrroadsigntype':{
+      'value': -1,
+      'timestamp': 0
+      },
+    'opkrroadlimitspeed':{
+      'value': -1,
+      'timestamp': 0
+      },
+    'opkrroadname':{
+      'value': "",
+      'timestamp': 0
+      }
+  }
 
   with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
     try:
@@ -268,6 +322,35 @@ def main():
         dat.roadLimitSpeed.sectionLeftTime = server.get_limit_val("section_left_time", 0)
         dat.roadLimitSpeed.sectionAdjustSpeed = server.get_limit_val("section_adjust_speed", False)
         dat.roadLimitSpeed.camSpeedFactor = server.get_limit_val("cam_speed_factor", CAMERA_SPEED_FACTOR)
+
+        type = server.get_apilot_val("type")
+        value = server.get_apilot_val("value")
+        now = sec_since_boot()
+
+        if type is not None:
+          #print(type)
+          if type in apilot_val:
+            apilot_val[type]['value'] = value
+            apilot_val[type]['timestamp'] = now
+          else:
+            print("no key~ '{type}'")
+
+        for key, value in apilot_val.items():
+          #print(key, value)
+          timestamp = apilot_val[key]['timestamp']
+          if (now - timestamp) > 6:
+            apilot_val[key]['value'] = -1 if key != 'opkrroadname' else 'None'
+            pass
+
+        #print(apilot_val)
+        dat.roadLimitSpeed.xTurnInfo = int(apilot_val['opkrturninfo']['value'])
+        dat.roadLimitSpeed.xDistToTurn = int(apilot_val['opkrdistancetoturn']['value'])
+        dat.roadLimitSpeed.xSpdDist = int(apilot_val['opkrspddist']['value'])
+        dat.roadLimitSpeed.xSpdLimit = int(apilot_val['opkrspdlimit']['value'])
+        dat.roadLimitSpeed.xSignType = int(apilot_val['opkrsigntype']['value'])
+        dat.roadLimitSpeed.xRoadSignType = int(apilot_val['opkrroadsigntype']['value'])
+        dat.roadLimitSpeed.xRoadLimitSpeed = int(apilot_val['opkrroadlimitspeed']['value'])
+        #dat.roadLimitSpeed.xRoadName = apilot_val['opkrroadname']['value']
 
         roadLimitSpeed.send(dat.to_bytes())
         server.send_sdp(sock)
@@ -316,6 +399,14 @@ class RoadSpeedLimiter:
 
       cam_limit_speed_left_dist = self.roadLimitSpeed.camLimitSpeedLeftDist
       cam_limit_speed = self.roadLimitSpeed.camLimitSpeed
+
+      if self.roadLimitSpeed.xSpdLimit > 0 and self.roadLimitSpeed.xSpdDist > 0:
+        cam_limit_speed_left_dist = self.roadLimitSpeed.xSpdDist
+        cam_limit_speed = self.roadLimitSpeed.xSpdLimit
+
+      if self.roadLimitSpeed.xSignType == 124: # 과속방지턱
+        cam_limit_speed_left_dist = 50
+        cam_limit_speed = 35
 
       section_limit_speed = self.roadLimitSpeed.sectionLimitSpeed
       section_left_dist = self.roadLimitSpeed.sectionLeftDist

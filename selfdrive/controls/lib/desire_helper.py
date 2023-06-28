@@ -74,9 +74,10 @@ class DesireHelper:
     self.desireEvent = 0
     self.desireEvent_prev = 0
     self.waitTorqueApply = False
+    self.desireEvent_nav = 0
 
 
-  def update(self, carstate, lateral_active, lane_change_prob, md, turn_prob):
+  def update(self, carstate, lateral_active, lane_change_prob, md, turn_prob, roadLimitSpeed):
     self.paramsCount += 1
     if self.paramsCount > 100:
       self.autoTurnControl = int(Params().get("AutoTurnControl", encoding="utf8"))
@@ -110,6 +111,29 @@ class DesireHelper:
                         ((carstate.steeringTorque > 0 and carstate.leftBlinker) or
                         (carstate.steeringTorque < 0 and carstate.rightBlinker))
 
+    #navInstruction
+    if False: #self.autoTurnControl == 1:
+      nav_distance = navInstruction.maneuverDistance;
+      nav_type = navInstruction.maneuverType;
+      nav_modifier = navInstruction.maneuverModifier;
+      nav_direction = LaneChangeDirection.none
+      if nav_type in ['turn', 'fork', 'off ramp']:
+        nav_turn = True if nav_type == 'turn' and nav_modifier in ['left', 'right'] else False
+        nav_direction = LaneChangeDirection.left if nav_modifier in ['slight left', 'left'] else LaneChangeDirection.right if nav_modifier in ['slight right', 'right'] else LaneChangeDirection.none
+      if nav_distance < 20 or nav_distance > 100.0 or self.autoTurnControl == 0:
+        nav_direction = LaneChangeDirection.none
+        self.desireEvent_nav = 0
+    elif self.autoTurnControl > 0:
+      nav_distance = roadLimitSpeed.xDistToTurn
+      nav_type = roadLimitSpeed.xTurnInfo
+      nav_turn = True if nav_type in [1,2] else False
+      nav_direction = LaneChangeDirection.left if nav_type in [1,3] else LaneChangeDirection.right if nav_type in [2,4] else LaneChangeDirection.none
+      if nav_distance < 10 or nav_distance > 60.0 or self.autoTurnControl == 0:
+        nav_direction = LaneChangeDirection.none
+        self.desireEvent_nav = 0
+
+    #print ('{} {} {} {} {}'.format(nav_direction, nav_turn, nav_distance, nav_type, nav_modifier))
+
     checkAutoTurnEnabled = self.autoTurnControl > 0
     checkAutoTurnSpeed = (v_ego_kph < self.autoTurnSpeed) and checkAutoTurnEnabled
 
@@ -129,9 +153,21 @@ class DesireHelper:
         self.desireEvent_prev = 0
         self.lane_change_direction = LaneChangeDirection.none
         self.turnControlState = False
-        if one_blinker and (not self.prev_one_blinker or v_ego_kph < 4 or (checkAutoTurnEnabled and steering_pressed)):  ##깜박이가 켜진시점에 검사, 정지상태에서는 lat_active가 아님. 
+        #깜박이가 켜져있고, 
+        #이전에 깜박이가 거져있거나,
+        #속도가 4키로이내거나
+        #오토턴이켜지고 핸들힘이 가해지면..
+        if nav_direction != LaneChangeDirection.none or (one_blinker and (not self.prev_one_blinker or v_ego_kph < 4 or (checkAutoTurnEnabled and steering_pressed))):  ##깜박이가 켜진시점에 검사, 정지상태에서는 lat_active가 아님. 
+          if nav_direction != LaneChangeDirection.none:
+            self.turnControlState = nav_turn
+            self.lane_change_state = LaneChangeState.preLaneChange
+
+            ## 턴합니다, 차선변경합니다. 소리는 한번만...
+            if self.desireEvent_nav == 0:
+              self.desireEvent = EventName.audioTurn if nav_turn else EventName.audioLaneChange
+              self.desireEvent_nav = self.desireEvent 
           # 정지상태, 출발할때
-          if v_ego_kph < 4.0:
+          elif v_ego_kph < 4.0:
             if self.autoTurnControl > 0: 
               self.turnControlState = True
               self.lane_change_state = LaneChangeState.preLaneChange
@@ -190,11 +226,14 @@ class DesireHelper:
         self.desireEvent = 0
         self.lane_change_pulse_timer += DT_MDL
         # Set lane change direction
-        self.lane_change_direction = LaneChangeDirection.left if \
-          carstate.leftBlinker else LaneChangeDirection.right
+        if nav_direction != LaneChangeDirection.none:
+          self.lane_change_direction = nav_direction
+        else:
+          self.lane_change_direction = LaneChangeDirection.left if \
+            carstate.leftBlinker else LaneChangeDirection.right
 
         if self.turnControlState:
-          if not one_blinker:
+          if not one_blinker and nav_direction == LaneChangeDirection.none:
             self.lane_change_state = LaneChangeState.off
           elif v_ego_kph < 2.0:
             self.lane_change_pulse_timer = 0.0
@@ -202,7 +241,7 @@ class DesireHelper:
             self.lane_change_state = LaneChangeState.laneChangeStarting
         else:
           # 깜박이가 꺼지거나, 속도가 줄어들면... 차선변경 중지.
-          if not one_blinker: #속도가 줄어도 차선변경이 가능하게 함(시험), or v_ego_kph < self.autoLaneChangeSpeed:  
+          if not one_blinker and nav_direction == LaneChangeDirection.none: #속도가 줄어도 차선변경이 가능하게 함(시험), or v_ego_kph < self.autoLaneChangeSpeed:  
             self.lane_change_state = LaneChangeState.off
           elif self.lane_change_pulse_timer > 0.2:
             if blindspot_detected:

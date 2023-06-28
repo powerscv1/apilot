@@ -1645,6 +1645,19 @@ void DrawApilot::drawDebugText(UIState* s) {
     qstr = QString::fromStdString(controls_state.getDebugText2().cStr());
     y += dy;
     ui_draw_text(s, text_x, y, qstr.toStdString().c_str(), 35, COLOR_WHITE, BOLD, 0.0f, 0.0f);
+    const auto road_limit_speed = sm["roadLimitSpeed"].getRoadLimitSpeed();
+    int xTurnInfo = road_limit_speed.getXTurnInfo();
+    int xDistToTurn = road_limit_speed.getXDistToTurn();
+    int xSpdDist = road_limit_speed.getXSpdDist();
+    int xSpdLimit = road_limit_speed.getXSpdLimit();
+    int xSignType = road_limit_speed.getXSignType();
+    int xRoadSignType = road_limit_speed.getXRoadSignType();
+    int xRoadLimitSpeed = road_limit_speed.getXRoadLimitSpeed();
+
+    sprintf(str, "Mappy: Turn(%d,%d), Spd(%d,%d),Sign(%d), Road(%d,%d)", xTurnInfo, xDistToTurn, xSpdDist, xSpdLimit, xSignType, xRoadSignType, xRoadLimitSpeed);
+    y += dy;
+    ui_draw_text(s, text_x, y, str, 35, COLOR_WHITE, BOLD, 0.0f, 0.0f);
+
     //p.drawText(text_x, y + 160, QString::fromStdString(controls_state.getDebugText2().cStr()));
     //p.drawText(text_x, y + 240, QString::fromStdString(controls_state.getDebugText1().cStr()));
 }
