@@ -91,26 +91,6 @@ class DesireHelper:
     one_blinker = carstate.leftBlinker != carstate.rightBlinker
     below_lane_change_speed = v_ego < LANE_CHANGE_SPEED_MIN
 
-    #로드엣지 읽기..
-    left_road_edge = -md.roadEdges[0].y[0]
-    right_road_edge = md.roadEdges[1].y[0]
-    road_edge_detected = (((left_road_edge < 3.5) and carstate.leftBlinker) or ((right_road_edge < 3.5) and carstate.rightBlinker))
-
-    #레인체인지 또는 자동턴 타임아웃
-    laneChangeTimeMax = LANE_CHANGE_TIME_MAX if not self.turnControlState else self.autoTurnTimeMax
-
-    #BSD읽기.
-    blindspot_detected = ((carstate.leftBlindspot and carstate.leftBlinker) or(carstate.rightBlindspot and carstate.rightBlinker))
-
-    #핸들토크읽기
-    torque_applied = carstate.steeringPressed and \
-                        ((carstate.steeringTorque > 0 and self.lane_change_direction == LaneChangeDirection.left) or
-                        (carstate.steeringTorque < 0 and self.lane_change_direction == LaneChangeDirection.right))
-
-    steering_pressed = carstate.steeringPressed and \
-                        ((carstate.steeringTorque > 0 and carstate.leftBlinker) or
-                        (carstate.steeringTorque < 0 and carstate.rightBlinker))
-
     #navInstruction
     if False: #self.autoTurnControl == 1:
       nav_distance = navInstruction.maneuverDistance;
@@ -133,6 +113,39 @@ class DesireHelper:
         self.desireEvent_nav = 0
 
     #print ('{} {} {} {} {}'.format(nav_direction, nav_turn, nav_distance, nav_type, nav_modifier))
+    leftBlinker = carstate.leftBlinker
+    rightBlinker = carstate.rightBlinker
+    if nav_direction == LaneChangeDirection.right:
+      if leftBlinker:
+        nav_direction = LaneChangeDirection.none
+      else:
+        rightBlinker = True
+    elif nav_direction == LaneChangeDirection.left:
+      if rightBlinker:
+        nav_direction = LaneChangeDirection.none
+      else:
+        leftBlinker = True
+
+    #로드엣지 읽기..
+    left_road_edge = -md.roadEdges[0].y[0]
+    right_road_edge = md.roadEdges[1].y[0]
+    road_edge_detected = (((left_road_edge < 3.5) and leftBlinker) or ((right_road_edge < 3.5) and rightBlinker))
+
+    #레인체인지 또는 자동턴 타임아웃
+    laneChangeTimeMax = LANE_CHANGE_TIME_MAX if not self.turnControlState else self.autoTurnTimeMax
+
+    #BSD읽기.
+    blindspot_detected = ((carstate.leftBlindspot and leftBlinker) or(carstate.rightBlindspot and rightBlinker))
+
+    #핸들토크읽기
+    torque_applied = carstate.steeringPressed and \
+                        ((carstate.steeringTorque > 0 and self.lane_change_direction == LaneChangeDirection.left) or
+                        (carstate.steeringTorque < 0 and self.lane_change_direction == LaneChangeDirection.right))
+
+    steering_pressed = carstate.steeringPressed and \
+                        ((carstate.steeringTorque > 0 and leftBlinker) or
+                        (carstate.steeringTorque < 0 and rightBlinker))
+
 
     checkAutoTurnEnabled = self.autoTurnControl > 0
     checkAutoTurnSpeed = (v_ego_kph < self.autoTurnSpeed) and checkAutoTurnEnabled
