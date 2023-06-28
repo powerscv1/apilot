@@ -458,6 +458,7 @@ struct CarControl {
       bsdWarning @19;
       speedDown @20;
       stopStop @21;
+      audioTurn @22;
       
     }
   }
