@@ -1400,7 +1400,7 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
             limit_speed = xSpdLimit;
             left_dist = xSpdDist;
         }
-        if (xTurnInfo >= 0) {
+        else if (xTurnInfo >= 0) {
             left_dist = xDistToTurn;
         }
 
@@ -1514,7 +1514,7 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
             nvgFill(s->vg);
             if (xSignType == 124) {
                 sprintf(str, "방지턱");
-                ui_draw_text(s, bx, by + 25, str, 40, COLOR_BLACK, BOLD, 0.0f, 0.0f);
+                ui_draw_text(s, bx, by + 20, str, 35, COLOR_BLACK, BOLD, 0.0f, 0.0f);
             }
             else {
                 sprintf(str, "%d", limit_speed);
