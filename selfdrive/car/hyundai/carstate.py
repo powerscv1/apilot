@@ -49,6 +49,8 @@ class CarState(CarStateBase):
     self.params = CarControllerParams(CP)
     self.gear_shifter = GearShifter.drive # Gear_init for Nexo ?? unknown 21.02.23.LSW
 
+    self.totalDistance = 0.0
+
   def update(self, cp, cp_cam):
     if self.CP.carFingerprint in CANFD_CAR:
       return self.update_canfd(cp, cp_cam)
@@ -249,6 +251,9 @@ class CarState(CarStateBase):
     ret.vEgoCluster = cluSpeed * speed_conv
     vEgoClu, aEgoClu = self.update_clu_speed_kf(ret.vEgoCluster)
     ret.vCluRatio = (ret.vEgo / vEgoClu) if (vEgoClu > 3. and ret.vEgo > 3.) else 1.0
+
+    self.totalDistance += ret.vEgo * DT_CTRL # 후진할때는?
+    ret.totalDistance = self.totalDistance
 
     #scc12_2 = cp_cam.vl["SCC12"]
     #scc12 = cp.vl["SCC12"]

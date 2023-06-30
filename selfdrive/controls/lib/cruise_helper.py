@@ -312,6 +312,8 @@ class CruiseHelper:
     apply_limit_speed, road_limit_speed, left_dist, first_started, max_speed_log = \
       road_speed_limiter.get_max_speed(clu11_speed, True, self.autoNaviSpeedCtrlStart, self.autoNaviSpeedCtrlEnd) #self.is_metric)
 
+    controls.debugText1 = max_speed_log
+
     self.active_cam = road_limit_speed > 0 and left_dist > 0
 
     if road_speed_limiter.roadLimitSpeed is not None:
@@ -337,7 +339,9 @@ class CruiseHelper:
     self.drivingModeIndex = self.drivingModeIndex * 0.999 + total_index * 0.001
 
     if self.initMyDrivingMode == 5:
-      if self.drivingModeIndex < 30:
+      if self.myDrivingMode in [2,4]:
+        pass
+      elif self.drivingModeIndex < 30:
         self.myDrivingMode = 3 #일반
       elif self.drivingModeIndex > 70:
         self.myDrivingMode = 1 #연비
@@ -361,7 +365,7 @@ class CruiseHelper:
     self.turnSpeed_prev = turnSpeed
     speed_diff = max(0, CS.vEgo*3.6 - turnSpeed)
     turnSpeed = turnSpeed - speed_diff * self.autoCurveSpeedFactorIn
-    controls.debugText1 = 'CURVE={:5.1f},curvature={:5.4f},mode={:3.2f}'.format(self.turnSpeed_prev, curvature, self.drivingModeIndex)
+    #controls.debugText1 = 'CURVE={:5.1f},curvature={:5.4f},mode={:3.2f}'.format(self.turnSpeed_prev, curvature, self.drivingModeIndex)
     return turnSpeed
 
   def apilot_curve_old(self, CS, controls):
@@ -379,7 +383,7 @@ class CruiseHelper:
     else:
       self.curvatureFilter.set(0.0)
 
-    controls.debugText1 = 'CURVE={:5.1f},curvature={:5.4f}'.format(turnSpeed, curvature)
+    #controls.debugText1 = 'CURVE={:5.1f},curvature={:5.4f}'.format(turnSpeed, curvature)
     self.turnSpeed_prev = turnSpeed
     return turnSpeed
 
@@ -650,6 +654,7 @@ class CruiseHelper:
     longActiveUser = self.longActiveUser
     self.frame = controls.sm.frame
     self.update_params(self.frame)
+
     self.naviSpeed, self.roadSpeed = self.update_speed_nda(CS, controls)
     
     self.curveSpeed = 255

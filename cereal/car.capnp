@@ -235,6 +235,7 @@ struct CarState {
   engineRpm @50 : Float32;
   chargeMeter @51 : Float32;
   motorRpm @52 : Float32;
+  totalDistance @53 : Float32;
 
   struct Tpms {
     fl @0 :Float32;

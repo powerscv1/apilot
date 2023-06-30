@@ -259,44 +259,23 @@ def main():
   server = RoadLimitSpeedServer()
   roadLimitSpeed = messaging.pub_sock('roadLimitSpeed')
 
-  apilot_val = {
-    'opkrturninfo': {
-      'value': -1,
-      'timestamp': 0
-    },
-    'opkrdistancetoturn': {
-      'value': -1,
-      'timestamp': 0
-      },
-    'opkrspddist':{
-      'value': -1,
-      'timestamp': 0
-      },
-    'opkrspdlimit':{
-      'value': -1,
-      'timestamp': 0
-      },
-    'opkrsigntype':{
-      'value': -1,
-      'timestamp': 0
-      },
-    'opkrroadsigntype':{
-      'value': -1,
-      'timestamp': 0
-      },
-    'opkrroadlimitspeed':{
-      'value': -1,
-      'timestamp': 0
-      },
-    'opkrroadname':{
-      'value': "",
-      'timestamp': 0
-      }
-  }
+  sock_carState = messaging.sub_sock("carState")
+  carState = None
+
+  xTurnInfo = -1
+  xDistToTurn = -1
+  xSpdDist = -1
+  xSpdLimit = -1
+  xSignType = -1
+  xRoadSignType = -1
+  xRoadLimitSpeed = -1
+
+  xBumpDistance = 0
+
+  totalDistance = 0.0
 
   with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
     try:
-
       try:
         sock.bind(('0.0.0.0', 843))
       except:
@@ -307,6 +286,13 @@ def main():
       while True:
 
         server.udp_recv(sock)
+
+        try:
+          dat = messaging.recv_sock(sock_carState, wait=False)
+          if dat is not None:
+            carState = dat.carState
+        except:
+          pass
 
         dat = messaging.new_message()
         dat.init('roadLimitSpeed')
@@ -325,38 +311,72 @@ def main():
 
         type = server.get_apilot_val("type")
         value = server.get_apilot_val("value")
+        type = "none" if type is None else type
+        value = "-1" if value is None else value
+        value_int = int(value)
         now = sec_since_boot()
+        print(type, value)
+        delta_dist = 0.0
+        if carState is not None:
+          CS = carState
+          delta_dist = CS.totalDistance - totalDistance
+          totalDistance = CS.totalDistance
 
-        if type is not None:
-          #print(type)
-          if type in apilot_val:
-            apilot_val[type]['value'] = value
-            apilot_val[type]['timestamp'] = now
-          else:
-            print("no key~ '{type}'")
+        if type == 'opkrturninfo':
+          xTurnInfo = value_int
+        elif type == 'opkrdistancetoturn':
+          xDistToTurn = value_int
+        elif type == 'opkrspddist':
+          xSpdDist = value_int
+        elif type == 'opkrspdlimit':
+          xSpdLimit = value_int
+        elif type == 'opkrsigntype':
+          xSignType = value_int
+        elif type == 'opkrroadsigntype':
+          xRoadSignType = value_int
+        elif type == 'opkrroadlimitspeed':
+          xRoadLimitSpeed = value_int
+        elif type == 'none':
+          pass
+        else:
+          print("unknown{}={}".format(type, value))
+        #dat.roadLimitSpeed.xRoadName = apilot_val['opkrroadname']['value']
 
-        for key, value in apilot_val.items():
-          #print(key, value)
-          timestamp = apilot_val[key]['timestamp']
-          if (now - timestamp) > 6:
-            apilot_val[key]['value'] = -1 if key != 'opkrroadname' else 'None'
-            pass
+        if xTurnInfo >= 0:
+          xDistToTurn -= delta_dist
+          if xDistToTurn < 0:
+            xTurnInfo = -1
 
-        #print(apilot_val)
-        dat.roadLimitSpeed.xTurnInfo = int(apilot_val['opkrturninfo']['value'])
-        dat.roadLimitSpeed.xDistToTurn = int(apilot_val['opkrdistancetoturn']['value'])
-        dat.roadLimitSpeed.xSpdDist = int(apilot_val['opkrspddist']['value'])
-        dat.roadLimitSpeed.xSpdLimit = int(apilot_val['opkrspdlimit']['value'])
-        dat.roadLimitSpeed.xSignType = int(apilot_val['opkrsigntype']['value'])
-        dat.roadLimitSpeed.xRoadSignType = int(apilot_val['opkrroadsigntype']['value'])
-        dat.roadLimitSpeed.xRoadLimitSpeed = int(apilot_val['opkrroadlimitspeed']['value'])
+        if xSpdLimit >= 0:
+          xSpdDist -= delta_dist
+          if xSpdDist < 0:
+            xSpdLimit = -1
+
+        if xBumpDistance > 0:
+          xBumpDistance -= delta_dist
+          if xBumpDistance <= 0 and xSignType == 124:
+            xSignType = -1
+
+        if xSignType == 124: ##사고방지턱
+          if xBumpDistance <= 0:
+            xBumpDistance = 80
+
+        dat.roadLimitSpeed.xTurnInfo = int(xTurnInfo)
+        dat.roadLimitSpeed.xDistToTurn = int(xDistToTurn)
+        dat.roadLimitSpeed.xSpdDist = int(xSpdDist) if xBumpDistance <= 0 else int(xBumpDistance)
+        dat.roadLimitSpeed.xSpdLimit = int(xSpdLimit) if xBumpDistance <= 0 else 35 # 속도는 추후조절해야함. 일단 35
+        dat.roadLimitSpeed.xSignType = int(xSignType)
+        dat.roadLimitSpeed.xRoadSignType = int(xRoadSignType)
+        dat.roadLimitSpeed.xRoadLimitSpeed = int(xRoadLimitSpeed)
         #dat.roadLimitSpeed.xRoadName = apilot_val['opkrroadname']['value']
 
         roadLimitSpeed.send(dat.to_bytes())
         server.send_sdp(sock)
         server.check()
+        time.sleep(0.03)
 
     except Exception as e:
+      print(e)
       server.last_exception = e
 
 
@@ -391,7 +411,6 @@ class RoadSpeedLimiter:
       return 0, 0, 0, False, ""
 
     try:
-
       road_limit_speed = self.roadLimitSpeed.roadLimitSpeed
       is_highway = self.roadLimitSpeed.isHighway
 
@@ -403,10 +422,7 @@ class RoadSpeedLimiter:
       if self.roadLimitSpeed.xSpdLimit > 0 and self.roadLimitSpeed.xSpdDist > 0:
         cam_limit_speed_left_dist = self.roadLimitSpeed.xSpdDist
         cam_limit_speed = self.roadLimitSpeed.xSpdLimit
-
-      if self.roadLimitSpeed.xSignType == 124: # 과속방지턱
-        cam_limit_speed_left_dist = 50
-        cam_limit_speed = 35
+        log = "limit={:.1f},{:.1f}".format(self.roadLimitSpeed.xSpdLimit, self.roadLimitSpeed.xSpdDist)
 
       section_limit_speed = self.roadLimitSpeed.sectionLimitSpeed
       section_left_dist = self.roadLimitSpeed.sectionLeftDist
