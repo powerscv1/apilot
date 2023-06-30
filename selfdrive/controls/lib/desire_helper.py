@@ -92,11 +92,12 @@ class DesireHelper:
     below_lane_change_speed = v_ego < LANE_CHANGE_SPEED_MIN
 
     #navInstruction
+    nav_direction = LaneChangeDirection.none
+    nav_turn = False
     if False: #self.autoTurnControl == 1:
       nav_distance = navInstruction.maneuverDistance;
       nav_type = navInstruction.maneuverType;
       nav_modifier = navInstruction.maneuverModifier;
-      nav_direction = LaneChangeDirection.none
       if nav_type in ['turn', 'fork', 'off ramp']:
         nav_turn = True if nav_type == 'turn' and nav_modifier in ['left', 'right'] else False
         nav_direction = LaneChangeDirection.left if nav_modifier in ['slight left', 'left'] else LaneChangeDirection.right if nav_modifier in ['slight right', 'right'] else LaneChangeDirection.none
