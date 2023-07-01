@@ -165,6 +165,9 @@ class DesireHelper:
                         ((carstate.steeringTorque > 0 and leftBlinker) or
                         (carstate.steeringTorque < 0 and rightBlinker))
 
+    steering_pressed_r = carstate.steeringPressed and \
+                        ((carstate.steeringTorque < 0 and leftBlinker) or
+                        (carstate.steeringTorque > 0 and rightBlinker))
 
     checkAutoTurnEnabled = self.autoTurnControl > 0
     checkAutoTurnSpeed = (v_ego_kph < self.autoTurnSpeed) and checkAutoTurnEnabled
@@ -191,13 +194,16 @@ class DesireHelper:
         #오토턴이켜지고 핸들힘이 가해지면..
         if nav_direction != LaneChangeDirection.none or (one_blinker and (not self.prev_one_blinker or v_ego_kph < 4 or (checkAutoTurnEnabled and steering_pressed))):  ##깜박이가 켜진시점에 검사, 정지상태에서는 lat_active가 아님. 
           if nav_direction != LaneChangeDirection.none:
-            self.turnControlState = nav_turn
-            self.lane_change_state = LaneChangeState.preLaneChange
+            if not nav_turn and road_edge_detected:
+              pass
+            else:
+              self.turnControlState = nav_turn
+              self.lane_change_state = LaneChangeState.preLaneChange
 
-            ## 턴합니다, 차선변경합니다. 소리는 한번만...
-            if self.desireEvent_nav == 0:
-              self.desireEvent = EventName.audioTurn if nav_turn else EventName.audioLaneChange
-              self.desireEvent_nav = self.desireEvent 
+              ## 턴합니다, 차선변경합니다. 소리는 한번만...
+              if self.desireEvent_nav == 0:
+                self.desireEvent = EventName.audioTurn if nav_turn else EventName.audioLaneChange
+                self.desireEvent_nav = self.desireEvent 
           # 정지상태, 출발할때
           elif v_ego_kph < 4.0:
             if self.autoTurnControl > 0: 
@@ -260,6 +266,7 @@ class DesireHelper:
         # Set lane change direction
         if nav_direction != LaneChangeDirection.none:
           self.lane_change_direction = nav_direction
+          self.turnControlState = nav_turn
         else:
           self.lane_change_direction = LaneChangeDirection.left if \
             carstate.leftBlinker else LaneChangeDirection.right
@@ -305,9 +312,8 @@ class DesireHelper:
         if not self.turnControlState:
           if steering_pressed and checkAutoTurnSpeed:  # 저속, 차선변경중 같은 방향 핸들토크.
             self.turnControlState = True
-          elif carstate.steeringPressed:  # 차선변경중 핸들토크: 무시
-            #self.lane_change_state = LaneChangeState.off
-            pass
+          elif steering_pressed_r:  # 차선변경중 핸들토크: 무시
+            self.lane_change_state = LaneChangeState.off
           elif self.lane_change_direction == LaneChangeDirection.right and road_edge_detected and checkAutoTurnSpeed: # 우측차선변경, 로드엣지, 턴속도, 턴~
             self.turnControlState = True
         elif steering_pressed: #턴중 핸들돌림... 무시
