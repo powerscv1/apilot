@@ -75,7 +75,6 @@ class DesireHelper:
     self.desireEvent_prev = 0
     self.waitTorqueApply = False
     self.desireEvent_nav = 0
-    self.nav_exec = 0
 
 
   def update(self, carstate, lateral_active, lane_change_prob, md, turn_prob, roadLimitSpeed):
@@ -117,21 +116,16 @@ class DesireHelper:
       #턴인데 거리가 200M이하인경우 로드에지가 아니면 차선변경시도... 우회전만..
       if nav_distance < 200:
        if nav_turn:
-         if 100 < nav_distance < 120 and (nav_direction == LaneChangeDirection.right) and (right_road_edge > 3.5) and self.nav_exec != 1: # 멀리있는경우 차로변경
+         if 80 < nav_distance < 120 and (nav_direction == LaneChangeDirection.right) and (right_road_edge > 3.5): # 멀리있는경우 차로변경
            nav_turn = False
-           self.nav_exec = 1
-         elif 10 < nav_distance < 60 and self.nav_exec != 2: # 턴시작
-           self.nav_exec = 2
+         elif 10 < nav_distance < 60: # 턴시작
            pass
          else:
            nav_direction = LaneChangeDirection.none
-       elif 10 < nav_distance < 100 and self.nav_exec != 2: # 차로변경시작
-         self.nav_exec = 2
+       elif 10 < nav_distance < 100: # 차로변경시작
          pass
        else:
          nav_direction = LaneChangeDirection.none
-      elif nav_distance < 10:
-        self.nav_exec = 0
       else:
         nav_direction = LaneChangeDirection.none
 
