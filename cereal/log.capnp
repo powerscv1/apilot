@@ -1995,7 +1995,7 @@ struct RoadLimitSpeed {
     sectionAdjustSpeed @10 :Bool;
     camSpeedFactor @11 :Float32;
 
-    xTurnInfo @12 : Int16;
+    xTurnInfo @12 : Int32;
     xDistToTurn @13 : Int32;
     xSpdDist @14 : Int16;
     xSpdLimit @15 : Int16;

@@ -104,7 +104,7 @@ class DesireHelper:
       if nav_type in ['turn', 'fork', 'off ramp']:
         nav_turn = True if nav_type == 'turn' and nav_modifier in ['left', 'right'] else False
         nav_direction = LaneChangeDirection.left if nav_modifier in ['slight left', 'left'] else LaneChangeDirection.right if nav_modifier in ['slight right', 'right'] else LaneChangeDirection.none
-      if nav_distance < 20 or nav_distance > 100.0 or self.autoTurnControl == 0:
+      if nav_distance < 20 or nav_distance > 100.0:
         nav_direction = LaneChangeDirection.none
         self.desireEvent_nav = 0
     elif self.autoTurnControl > 0:
@@ -112,9 +112,19 @@ class DesireHelper:
       nav_type = roadLimitSpeed.xTurnInfo
       nav_turn = True if nav_type in [1,2] else False
       nav_direction = LaneChangeDirection.left if nav_type in [1,3] else LaneChangeDirection.right if nav_type in [2,4] else LaneChangeDirection.none
-      if nav_distance < 10 or nav_distance > 60.0 or self.autoTurnControl == 0:
+
+      #턴인데 거리가 200M이하인경우 로드에지가 아니면 차선변경시도... 우회전만..
+      if nav_turn and  nav_distance < 200:
+       if nav_distance > 10 and (nav_direction == LaneChangeDirection.right) and (right_road_edge > 3.5):
+         nav_turn = False
+       elif nav_distance < 10 or nav_distance > 60:
+         nav_direction = LaneChangeDirection.none
+      else:
         nav_direction = LaneChangeDirection.none
+
+      if nav_direction == LaneChangeDirection.none:
         self.desireEvent_nav = 0
+
 
     #print ('{} {} {} {} {}'.format(nav_direction, nav_turn, nav_distance, nav_type, nav_modifier))
     leftBlinker = carstate.leftBlinker
