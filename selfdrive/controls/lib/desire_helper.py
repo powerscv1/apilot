@@ -91,6 +91,9 @@ class DesireHelper:
     one_blinker = carstate.leftBlinker != carstate.rightBlinker
     below_lane_change_speed = v_ego < LANE_CHANGE_SPEED_MIN
 
+    left_road_edge = -md.roadEdges[0].y[0]
+    right_road_edge = md.roadEdges[1].y[0]
+
     #navInstruction
     nav_direction = LaneChangeDirection.none
     nav_turn = False
@@ -128,8 +131,6 @@ class DesireHelper:
         leftBlinker = True
 
     #로드엣지 읽기..
-    left_road_edge = -md.roadEdges[0].y[0]
-    right_road_edge = md.roadEdges[1].y[0]
     road_edge_detected = (((left_road_edge < 3.5) and leftBlinker) or ((right_road_edge < 3.5) and rightBlinker))
 
     #레인체인지 또는 자동턴 타임아웃
