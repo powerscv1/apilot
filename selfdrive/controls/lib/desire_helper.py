@@ -316,17 +316,22 @@ class DesireHelper:
                 self.desireEvent = EventName.preLaneChangeLeft if self.lane_change_direction == LaneChangeDirection.left else EventName.preLaneChangeRight
             self.desireEvent_prev = self.desireEvent
         if self.lane_change_state == LaneChangeState.laneChangeStarting:
-          self.lane_change_ll_prob = 3.0 if self.turnControlState else 1.0
+          self.lane_change_ll_prob = 2.0 if self.turnControlState else 1.0
 
       # 2. LaneChangeState.laneChangeStarting
       elif self.lane_change_state == LaneChangeState.laneChangeStarting:
         if nav_direction != LaneChangeDirection.none:
           self.navActive = 2 if nav_turn else 1
         self.desireEvent = EventName.laneChange
-        # fade out over .5s
-        self.lane_change_ll_prob = max(self.lane_change_ll_prob - 2 * DT_MDL, 0.0)
-        if v_ego < 1.0:
-          self.lane_change_ll_prob = 6.0 if self.turnControlState else 1.0
+
+        ##턴은 늦게 시작됨.
+        if self.turnControlState:
+          if (v_ego < 1.0) or (self.lane_change_ll_prob == 2.0 and turn_prob < 0.5): #정지하거나, 아직 턴이 시작안되었으면
+            self.lane_change_ll_prob = 2.0
+          else:
+            self.lane_change_ll_prob = max(self.lane_change_ll_prob - 2 * DT_MDL, 0.0)
+        else:
+          self.lane_change_ll_prob = max(self.lane_change_ll_prob - 2 * DT_MDL, 0.0)
 
         ## 차선변경시 핸들을 방향으로 건들면... 턴으로 변경, 반대로 하면 취소..
         if not self.turnControlState:
