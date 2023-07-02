@@ -115,31 +115,23 @@ class DesireHelper:
       nav_distance = roadLimitSpeed.xDistToTurn
       nav_type = roadLimitSpeed.xTurnInfo
       nav_turn = True if nav_type in [1,2] else False
-      nav_direction = LaneChangeDirection.left if nav_type in [1,3] else LaneChangeDirection.right if nav_type in [2,4,43] else LaneChangeDirection.none
-
+      direction = LaneChangeDirection.left if nav_type in [1,3] else LaneChangeDirection.right if nav_type in [2,4,43] else LaneChangeDirection.none
+      nav_direction = LaneChangeDirection.none
       #턴인데 거리가 200M이하인경우 로드에지가 아니면 차선변경시도... 우회전만..
       if 5 < nav_distance < 200:
         if nav_turn:
           if nav_distance < 150 and (nav_direction == LaneChangeDirection.right) and (self.right_road_edge > 3.5) and self.navActive==0: # 멀리있는경우 차로변경
             nav_turn = False
+            nav_direction = direction
           elif nav_distance < 60 and self.navActive != 2: # 턴시작
-            pass
-          else:
-            nav_direction = LaneChangeDirection.none
+            nav_direction = direction
         elif nav_distance < 150 and self.navActive == 0: # 차로변경시작
           if (nav_direction == LaneChangeDirection.right) and (self.right_road_edge > 3.5):
-            pass
+            nav_direction = direction
           elif (nav_direction == LaneChangeDirection.left) and (self.left_road_edge > 3.5):
-            pass
-          else:
-            nav_direction = LaneChangeDirection.none
-        else:
-          nav_direction = LaneChangeDirection.none
-      elif nav_distance < 2 and self.navActive > 0:
-        nav_direction = LaneChangeDirection.none
-        self.navActive = 0
+            nav_direction = direction
       else:
-        nav_direction = LaneChangeDirection.none
+        self.navActive = 0
 
       if nav_direction == LaneChangeDirection.none:
         self.desireEvent_nav = 0

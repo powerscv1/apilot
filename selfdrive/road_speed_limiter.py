@@ -391,9 +391,12 @@ def main():
 
         if xSignType == 124: ##사고방지턱
           if xBumpDistance <= 0:
-            xBumpDistance = 80
+            xBumpDistance = 100
+        else:
+          xBumpDistance = -1
 
-        print("turn={},{}".format(xTurnInfo, xDistToTurn))
+
+        #print("turn={},{}".format(xTurnInfo, xDistToTurn))
         dat.roadLimitSpeed.xTurnInfo = int(xTurnInfo)
         dat.roadLimitSpeed.xDistToTurn = int(xDistToTurn)
         dat.roadLimitSpeed.xSpdDist = int(xSpdDist) if xBumpDistance <= 0 else int(xBumpDistance)
@@ -417,6 +420,7 @@ class RoadSpeedLimiter:
   def __init__(self):
     self.slowing_down = False
     self.started_dist = 0
+    self.session_limit = False
 
     self.sock = messaging.sub_sock("roadLimitSpeed")
     self.roadLimitSpeed = None
@@ -455,7 +459,10 @@ class RoadSpeedLimiter:
       if self.roadLimitSpeed.xSpdLimit > 0 and self.roadLimitSpeed.xSpdDist > 0:
         cam_limit_speed_left_dist = self.roadLimitSpeed.xSpdDist
         cam_limit_speed = self.roadLimitSpeed.xSpdLimit
+        self.session_limit = True if (self.roadLimitSpeed.xSignType == 165) or (cam_limit_speed_left_dist > 3000) else False
         log = "limit={:.1f},{:.1f}".format(self.roadLimitSpeed.xSpdLimit, self.roadLimitSpeed.xSpdDist)
+
+        self.session_limit = False if cam_limit_speed_left_dist < 50 else self.session_limit
 
       section_limit_speed = self.roadLimitSpeed.sectionLimitSpeed
       section_left_dist = self.roadLimitSpeed.sectionLeftDist
@@ -465,7 +472,7 @@ class RoadSpeedLimiter:
 
       camSpeedFactor = clip(self.roadLimitSpeed.camSpeedFactor, 1.0, 1.1)
 
-      if is_highway is not None:
+      if False and is_highway is not None:
         if is_highway:
           MIN_LIMIT = 40
           MAX_LIMIT = 120
@@ -505,7 +512,7 @@ class RoadSpeedLimiter:
           td = self.started_dist - safe_dist
           d = cam_limit_speed_left_dist - safe_dist
 
-          if d > 0. and td > 0. and diff_speed > 0. and (section_left_dist is None or section_left_dist < 10 or cam_type == 2):
+          if d > 0. and td > 0. and diff_speed > 0. and (section_left_dist is None or section_left_dist < 10 or cam_type == 2) and not self.session_limit:
             pp = (d / td) ** 0.6
           else:
             pp = 0
