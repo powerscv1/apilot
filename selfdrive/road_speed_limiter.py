@@ -328,7 +328,7 @@ def main():
           delta_dist = CS.totalDistance - totalDistance
           totalDistance = CS.totalDistance
           if CS.gasPressed:
-            self.xBumpDistance = -1
+            xBumpDistance = -1
 
         if atype == 'none':
           pass
