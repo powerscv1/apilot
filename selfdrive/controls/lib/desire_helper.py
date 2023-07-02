@@ -100,7 +100,7 @@ class DesireHelper:
     self.right_road_edge = self.right_road_edge * (1-alpha) + (md.roadEdges[1].y[0] * alpha)
 
     #navInstruction
-    nav_direction = LaneChangeDirection.none
+    direction = nav_direction = LaneChangeDirection.none
     nav_turn = False
     if False: #self.autoTurnControl == 1:
       nav_distance = navInstruction.maneuverDistance;
