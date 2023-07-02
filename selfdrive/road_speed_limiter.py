@@ -329,6 +329,8 @@ def main():
           totalDistance = CS.totalDistance
           if CS.gasPressed:
             xBumpDistance = -1
+            if xSignType == 124:
+              xSignType = -1
 
         if atype == 'none':
           pass
