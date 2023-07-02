@@ -75,6 +75,9 @@ class DesireHelper:
     self.desireEvent_prev = 0
     self.waitTorqueApply = False
     self.desireEvent_nav = 0
+    self.navActive = 0
+    self.left_road_edge = 0.0
+    self.right_road_edge = 0.0
 
 
   def update(self, carstate, lateral_active, lane_change_prob, md, turn_prob, roadLimitSpeed):
@@ -91,8 +94,9 @@ class DesireHelper:
     one_blinker = carstate.leftBlinker != carstate.rightBlinker
     below_lane_change_speed = v_ego < LANE_CHANGE_SPEED_MIN
 
-    left_road_edge = -md.roadEdges[0].y[0]
-    right_road_edge = md.roadEdges[1].y[0]
+    alpha = 0.1
+    self.left_road_edge = self.left_road_edge * (1-alpha) + (-md.roadEdges[0].y[0] * alpha)
+    self.right_road_edge = self.right_road_edge * (1-alpha) + (md.roadEdges[1].y[0] * alpha)
 
     #navInstruction
     nav_direction = LaneChangeDirection.none
@@ -111,21 +115,29 @@ class DesireHelper:
       nav_distance = roadLimitSpeed.xDistToTurn
       nav_type = roadLimitSpeed.xTurnInfo
       nav_turn = True if nav_type in [1,2] else False
-      nav_direction = LaneChangeDirection.left if nav_type in [1,3] else LaneChangeDirection.right if nav_type in [2,4] else LaneChangeDirection.none
+      nav_direction = LaneChangeDirection.left if nav_type in [1,3] else LaneChangeDirection.right if nav_type in [2,4,43] else LaneChangeDirection.none
 
       #턴인데 거리가 200M이하인경우 로드에지가 아니면 차선변경시도... 우회전만..
-      if nav_distance < 200:
-       if nav_turn:
-         if 80 < nav_distance < 120 and (nav_direction == LaneChangeDirection.right) and (right_road_edge > 3.5): # 멀리있는경우 차로변경
-           nav_turn = False
-         elif 10 < nav_distance < 60: # 턴시작
-           pass
-         else:
-           nav_direction = LaneChangeDirection.none
-       elif 10 < nav_distance < 100: # 차로변경시작
-         pass
-       else:
-         nav_direction = LaneChangeDirection.none
+      if 10 < nav_distance < 200:
+        if nav_turn:
+          if 10 < nav_distance < 150 and (nav_direction == LaneChangeDirection.right) and (self.right_road_edge > 3.5) and self.navActive==0: # 멀리있는경우 차로변경
+            nav_turn = False
+          elif nav_distance < 60 and self.navActive != 2: # 턴시작
+            pass
+          else:
+            nav_direction = LaneChangeDirection.none
+        elif 10 < nav_distance < 150 and self.navActive == 0: # 차로변경시작
+          if (nav_direction == LaneChangeDirection.right) and (self.right_road_edge > 3.5):
+            pass
+          elif (nav_direction == LaneChangeDirection.left) and (self.left_road_edge > 3.5):
+            pass
+          else:
+            nav_direction = LaneChangeDirection.none
+        else:
+          nav_direction = LaneChangeDirection.none
+      elif nav_distance < 10 and self.navActive > 0:
+        nav_direction = LaneChangeDirection.none
+        self.navActive = 0
       else:
         nav_direction = LaneChangeDirection.none
 
@@ -148,7 +160,7 @@ class DesireHelper:
         leftBlinker = True
 
     #로드엣지 읽기..
-    road_edge_detected = (((left_road_edge < 3.5) and leftBlinker) or ((right_road_edge < 3.5) and rightBlinker))
+    road_edge_detected = (((self.left_road_edge < 3.5) and leftBlinker) or ((self.right_road_edge < 3.5) and rightBlinker))
 
     #레인체인지 또는 자동턴 타임아웃
     laneChangeTimeMax = LANE_CHANGE_TIME_MAX if not self.turnControlState else self.autoTurnTimeMax
@@ -304,6 +316,8 @@ class DesireHelper:
 
       # 2. LaneChangeState.laneChangeStarting
       elif self.lane_change_state == LaneChangeState.laneChangeStarting:
+        if nav_direction != LaneChangeDirection.none:
+          self.navActive = 2 if nav_turn else 1
         self.desireEvent = EventName.laneChange
         # fade out over .5s
         self.lane_change_ll_prob = max(self.lane_change_ll_prob - 2 * DT_MDL, 0.0)
