@@ -120,15 +120,15 @@ class DesireHelper:
       #턴인데 거리가 200M이하인경우 로드에지가 아니면 차선변경시도... 우회전만..
       if 5 < nav_distance < 200:
         if nav_turn:
-          if nav_distance < 150 and (nav_direction == LaneChangeDirection.right) and (self.right_road_edge > 3.5) and self.navActive==0: # 멀리있는경우 차로변경
+          if nav_distance < 150 and (direction == LaneChangeDirection.right) and (self.right_road_edge > 3.5) and not carstate.rightBlindspot and self.navActive==0: # 멀리있는경우 차로변경
             nav_turn = False
             nav_direction = direction
           elif nav_distance < 60 and self.navActive != 2: # 턴시작
             nav_direction = direction
         elif nav_distance < 150 and self.navActive == 0: # 차로변경시작
-          if (nav_direction == LaneChangeDirection.right) and (self.right_road_edge > 3.5):
+          if (direction == LaneChangeDirection.right) and (self.right_road_edge > 3.5) and not carstate.rightBlindspot:
             nav_direction = direction
-          elif (nav_direction == LaneChangeDirection.left) and (self.left_road_edge > 3.5):
+          elif (direction == LaneChangeDirection.left) and (self.left_road_edge > 3.5) and not carstate.leftBlindspot:
             nav_direction = direction
       else:
         self.navActive = 0
