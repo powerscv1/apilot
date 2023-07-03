@@ -1699,7 +1699,11 @@ void DrawApilot::drawDebugText(UIState* s) {
     int xRoadSignType = road_limit_speed.getXRoadSignType();
     int xRoadLimitSpeed = road_limit_speed.getXRoadLimitSpeed();
 
-    sprintf(str, "Mappy: Turn(%d,%d), Spd(%d,%d),Sign(%d), Road(%d,%d)", xTurnInfo, xDistToTurn, xSpdDist, xSpdLimit, xSignType, xRoadSignType, xRoadLimitSpeed);
+    auto lateralPlan = sm["lateralPlan"].getLateralPlan();
+    float laneWidth = lateralPlan.getLaneWidth();
+
+
+    sprintf(str, "Mappy: Turn(%d,%d), Spd(%d,%d),Sign(%d), Road(%d,%d), LW:%.1f", xTurnInfo, xDistToTurn, xSpdDist, xSpdLimit, xSignType, xRoadSignType, xRoadLimitSpeed, laneWidth);
     y += dy;
     ui_draw_text(s, text_x, y, str, 35, COLOR_WHITE, BOLD, 0.0f, 0.0f);
 
