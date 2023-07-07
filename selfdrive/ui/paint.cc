@@ -1345,6 +1345,7 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
         x = 400;
     }
 
+    QString navText = "";
     // 속도표시
     if (true) {
         const auto road_limit_speed = sm["roadLimitSpeed"].getRoadLimitSpeed();
@@ -1392,6 +1393,7 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
         int xSpdDist = road_limit_speed.getXSpdDist();
         int xSpdLimit = road_limit_speed.getXSpdLimit();
         int xSignType = road_limit_speed.getXSignType();
+        navText = QString::fromStdString(road_limit_speed.getXRoadName());
 #ifdef __TEST
         xTurnInfo = 2;
         xDistToTurn = 120;
@@ -1403,6 +1405,9 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
         else if (xTurnInfo >= 0) {
             left_dist = xDistToTurn;
         }
+
+        //sprintf(str, "%.1f/%.1f %s(%s)", distance, distance_remaining, type.length() ? type.toStdString().c_str() : "", modifier.length() ? modifier.toStdString().c_str() : "");
+
 
         int radar_tracks = Params().getBool("EnableRadarTracks");
         //QString nda_mode_str = QString::fromStdString(Params().get("AutoNaviSpeedCtrl"));
@@ -1439,7 +1444,7 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
         if (s->show_conn_info) {
             //ui_draw_text(s, strlen(str) / 2 * 35 / 2 + 50,40, str, 35, COLOR_WHITE, BOLD);
             if (sccBus) ui_draw_image(s, { 30, 20, 120, 54 }, "ic_scc2", 1.0f);
-            if (activeNDA) ui_draw_image(s, { 30 + 135, 20, 120, 54 }, "ic_nda", 1.0f);
+            if (activeNDA%100==1) ui_draw_image(s, { 30 + 135, 20, 120, 54 }, "ic_nda", 1.0f);
             if (radar_tracks) ui_draw_image(s, { 30 + 135 * 2, 20, 240, 54 }, "ic_radartracks", 1.0f);
         }
 
@@ -1604,14 +1609,19 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
         time_t now = time(nullptr);
         struct tm* local = localtime(&now);
 
+        int nav_y = 170 + 40;
+
         if (s->show_datetime == 1 || s->show_datetime == 2) {
             strftime(str, sizeof(str), "%H:%M", local);
             ui_draw_text(s, 170, 170, str, 100, COLOR_WHITE, BOLD, 3.0f, 8.0f);
+
         }
         if (s->show_datetime == 1 || s->show_datetime == 3) {
             strftime(str, sizeof(str), "%m-%d-%a", local);
             ui_draw_text(s, 170, 170+70, str, 60, COLOR_WHITE, BOLD, 3.0f, 8.0f);
+            nav_y += 70;
         }
+        ui_draw_text(s, 170, nav_y, navText.toStdString().c_str(), 35, COLOR_WHITE, BOLD, 3.0f, 8.0f);
     }
     v_ego_kph = v_ego_kph;
     brake_valid = brake_valid;

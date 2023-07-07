@@ -236,6 +236,8 @@ struct CarState {
   chargeMeter @51 : Float32;
   motorRpm @52 : Float32;
   totalDistance @53 : Float32;
+  speedLimit @54 : Int32;
+  speedLimitDistance @55 : Float32;
 
   struct Tpms {
     fl @0 :Float32;
@@ -548,6 +550,7 @@ struct CarParams {
 
   sccBus @72 : Int8;
   hasLfaHda @73 : Bool;
+  naviCluster @74 : Int8;
 
   struct SafetyConfig {
     safetyModel @0 :SafetyModel;
