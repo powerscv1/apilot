@@ -1398,7 +1398,8 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
         xTurnInfo = 2;
         xDistToTurn = 120;
 #endif
-        if (xSpdLimit >= 0 && xSpdDist >= 0) {
+        if (limit_speed > 0); 
+        else if (xSpdLimit >= 0 && xSpdDist >= 0) {
             limit_speed = xSpdLimit;
             left_dist = xSpdDist;
         }
