@@ -151,6 +151,7 @@ class DesireHelper:
         if nav_turn:
           if nav_distance < 60: # and self.navActive != 2: # 턴시작
             nav_direction = direction
+            needTorque = True
           # 로드에지가 검출안되면 차로변경(토크필요), 그외 차로변경 명령
           else: # nav_distance < 180 and (direction == LaneChangeDirection.right) and (road_edge_stat < 1) and not carstate.rightBlindspot and self.navActive==0: # 멀리있는경우 차로변경
             if direction == LaneChangeDirection.right:
