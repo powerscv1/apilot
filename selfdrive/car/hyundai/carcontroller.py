@@ -236,13 +236,22 @@ class CarController:
         can_sends.append(hyundaican.create_mdps12(self.packer, self.frame, CS.mdps12))
 
       if self.frame % 2 == 0 and self.CP.openpilotLongitudinalControl:
+        if False: #sunnyhaibin, smoother stop test
+          stopping = stopping and CS.out.vEgoRaw < 0.05
         # TODO: unclear if this is needed
         startingJerk = 1
         if self.CP.carFingerprint in (CAR.KONA, CAR.KONA_EV, CAR.KONA_HEV, CAR.KONA_EV_2022):
-          startingJerk = 5
-        jerk = self.jerkUpperLowerLimit if actuators.longControlState in [LongCtrlState.pid,LongCtrlState.stopping] else startingJerk  #comma: jerk=1
-        can_sends.extend(hyundaican.create_acc_commands_mix_scc(self.CP, self.packer, CC.enabled, accel, jerk, int(self.frame / 2),
+          startingJerk = 5        
+        if actuators.jerk <= 0:
+          jerk_l = max(1, - actuators.jerk * 2)
+          jerk_u = 0
+        else:
+          jerk = self.jerkUpperLowerLimit if actuators.longControlState in [LongCtrlState.pid,LongCtrlState.stopping] else startingJerk  #comma: jerk=1
+          jerk_u = jerk #actuators.jerk *3
+          jerk_l = jerk #0 if actuators.jerk > 0.5 else 1.0
+        can_sends.extend(hyundaican.create_acc_commands_mix_scc(self.CP, self.packer, CC.enabled, accel, jerk_u, jerk_l, int(self.frame / 2),
                                                       hud_control, set_speed_in_units, stopping, CC, CS, self.softHoldMode))
+        self.accel_last = accel
 
       # 20 Hz LFA MFA message
       if self.frame % 5 == 0 and self.CP.flags & HyundaiFlags.SEND_LFA.value:
