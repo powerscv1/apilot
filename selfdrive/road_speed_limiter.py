@@ -369,7 +369,7 @@ def main():
         elif atype == 'opkrwazeroadname':
           xRoadName = value
         elif atype == 'opkrwazenavsign':
-          if value == '2131230983': # ¸ñÀûÁö
+          if value == '2131230983': # ëª©ì ì§€
             xTurnInfo = -1
           elif value == '2131230988': # turnLeft
             xTurnInfo = 1
@@ -396,7 +396,7 @@ def main():
           print("unknown{}={}".format(atype, value))
         #dat.roadLimitSpeed.xRoadName = apilot_val['opkrroadname']['value']
 
-        #for ¶ì¸Ê
+        #for ë ë§µ
         nTBTTurnType = int(server.get_apilot_val("nTBTTurnType", -1))
         if nTBTTurnType in [12, 16]:
           xTurnInfo = 1  # turn left
@@ -437,7 +437,7 @@ def main():
           xSpdLimit = 35
           xSpdDist = nSdiPlusDist if nSdiPlusType == 22 else nSdiDist
           sdiType = 22
-        elif nTBTTurnType >= 0 and nSdiType <= 0 and nSdiPlusType <= 0: # µ¥ÀÌÅÍ´Â ¼ö½ÅµÇ¾úÀ¸³ª, sdi ¼ö½ÅÀÌ ¾øÀ¸¸é, °¨¼ÓÁß ´Ù¸¥°÷À¸·Î ºüÁø°æ¿ì... ÃÊ±âÈ­...
+        elif nTBTTurnType >= 0 and nSdiType <= 0 and nSdiPlusType <= 0: # ë°ì´í„°ëŠ” ìˆ˜ì‹ ë˜ì—ˆìœ¼ë‚˜, sdi ìˆ˜ì‹ ì´ ì—†ìœ¼ë©´, ê°ì†ì¤‘ ë‹¤ë¥¸ê³³ìœ¼ë¡œ ë¹ ì§„ê²½ìš°... ì´ˆê¸°í™”...
           xSpedLimit = xSpdDist = sdiType = -1
 
         if sdiType >= 0:
@@ -472,7 +472,7 @@ def main():
           else:
             dat.roadLimitSpeed.camType = 22 # bump
 
-        if xSignType == 124: ##»ç°í¹æÁöÅÎ
+        if xSignType == 124: ##ì‚¬ê³ ë°©ì§€í„±
           if xBumpDistance <= 0:
             xBumpDistance = 110
         else:
@@ -489,7 +489,7 @@ def main():
         dat.roadLimitSpeed.xTurnInfo = int(xTurnInfo)
         dat.roadLimitSpeed.xDistToTurn = int(xDistToTurn)
         dat.roadLimitSpeed.xSpdDist = int(xSpdDist) if xBumpDistance <= 0 else int(xBumpDistance)
-        dat.roadLimitSpeed.xSpdLimit = int(xSpdLimit) if xBumpDistance <= 0 else 35 # ¼Óµµ´Â ÃßÈÄÁ¶ÀýÇØ¾ßÇÔ. ÀÏ´Ü 35
+        dat.roadLimitSpeed.xSpdLimit = int(xSpdLimit) if xBumpDistance <= 0 else 35 # ì†ë„ëŠ” ì¶”í›„ì¡°ì ˆí•´ì•¼í•¨. ì¼ë‹¨ 35
         dat.roadLimitSpeed.xSignType = int(xSignType) if xBumpDistance <= 0 else 22
         dat.roadLimitSpeed.xRoadSignType = int(xRoadSignType)
         dat.roadLimitSpeed.xRoadLimitSpeed = int(xRoadLimitSpeed)
