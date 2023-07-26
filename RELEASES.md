@@ -1,3 +1,6 @@
+230726 - APILOT
+* APilotMan 0.81 : 구간단속
+
 230714 - APILOT
 ========================
 * NOO Helper - 0:None,1:Mappy,Waze, 2:시험
