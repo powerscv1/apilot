@@ -2,9 +2,9 @@
   "apilot": 20220111,
   "params": [
     {
-      "group": "조향일반",
+      "group": "즐겨찾기",
       "name": "PathOffset",
-      "title": "차선치우침 좌우보정(0)",
+      "title": "1 차선치우침 좌우보정(0)",
       "descr": "(-)좌측,(+)우측",
       "egroup": "LAT",
       "etitle": "PathOffset (0)",
@@ -12,7 +12,7 @@
       "min": -200,
       "max": 200,
       "default": 0,
-      "unit": 1
+      "unit": 5
     },
     {
       "group": "정지",
@@ -163,19 +163,19 @@
       "unit": 1
     },
     {
-      "group": "조향튜닝",
+      "group": "즐겨찾기",
       "name": "LateralTorqueAccelFactor",
-      "title": "_LateralTorqueAccelFactor*0.001(2500)",
+      "title": "2 _LateralTorqueAccelFactor*0.001(2500)",
       "descr": "",
       "min": 1000,
       "max": 4000,
       "default": 2500,
-      "unit": 1
+      "unit": 50
     },
     {
-      "group": "조향튜닝",
+      "group": "즐겨찾기",
       "name": "LateralTorqueFriction",
-      "title": "_LateralTorqueFriction*0.001(100)",
+      "title": "3 _LateralTorqueFriction*0.001(100)",
       "descr": "",
       "min": 0,
       "max": 1000,
@@ -183,9 +183,9 @@
       "unit": 1
     },
     {
-      "group": "조향튜닝",
+      "group": "즐겨찾기",
       "name": "SteerActuatorDelay",
-      "title": "SteerActuatorDelay(30)",
+      "title": "4 SteerActuatorDelay(30)",
       "descr": "값이크면 조향을 좀더 미리함(일반,10msec)",
       "min": 0,
       "max": 100,
@@ -733,7 +733,7 @@
       "unit": 1
     },
     {
-      "group": "화면",
+      "group": "즐겨찾기",
       "name": "ShowDeviceState",
       "title": "디바이스정보",
       "descr": "",
