@@ -2,9 +2,9 @@
   "apilot": 20220111,
   "params": [
     {
-      "group": "조향일반",
+      "group": "즐겨찾기",
       "name": "PathOffset",
-      "title": "차선치우침 좌우보정(0)",
+      "title": "1 차선치우침 좌우보정(0)",
       "descr": "(-)좌측,(+)우측",
       "egroup": "LAT",
       "etitle": "PathOffset (0)",
@@ -12,7 +12,7 @@
       "min": -200,
       "max": 200,
       "default": 0,
-      "unit": 1
+      "unit": 10
     },
     {
       "group": "정지",
@@ -123,19 +123,19 @@
       "unit": 1
     },
     {
-      "group": "조향튜닝",
+      "group": "즐겨찾기",
       "name": "LateralTorqueAccelFactor",
-      "title": "_LateralTorqueAccelFactor*0.001(2500)",
+      "title": "2 _LateralTorqueAccelFactor*0.001(2500)",
       "descr": "",
       "min": 1000,
       "max": 4000,
       "default": 2500,
-      "unit": 1
+      "unit": 10
     },
     {
-      "group": "조향튜닝",
+      "group": "즐겨찾기",
       "name": "LateralTorqueFriction",
-      "title": "_LateralTorqueFriction*0.001(100)",
+      "title": "3 _LateralTorqueFriction*0.001(100)",
       "descr": "",
       "min": 0,
       "max": 1000,
@@ -199,7 +199,7 @@
       "descr": "0: LiveSteerRatio사용, 단위:0.1",
       "min": 0,
       "max": 300,
-      "default": 0,
+      "default": 145,
       "unit": 1
     },
     {
@@ -309,7 +309,7 @@
       "descr": "낮추면 정지력증가, 가속력감소",
       "min": 10,
       "max": 100,
-      "default": 50,
+      "default": 30,
       "unit": 10
     },
     {
@@ -319,7 +319,7 @@
       "descr": "올리면 감속력 증가",
       "min": 10,
       "max": 100,
-      "default": 50,
+      "default": 60,
       "unit": 10
     },
     {
@@ -349,7 +349,7 @@
       "descr": "적으면 선행차에 대한 반응이 빨라집니다.",
       "min": 20,
       "max": 400,
-      "default": 150,
+      "default": 200,
       "unit": 10
     },
     {
@@ -479,7 +479,7 @@
       "descr": "해당속도 이상에서만 자동차선변경",
       "min": 5,
       "max": 60,
-      "default": 30,
+      "default": 40,
       "unit": 5
     },
     {
@@ -873,7 +873,7 @@
       "unit": 10
     },
     {
-      "group": "화면",
+      "group": "즐겨찾기",
       "name": "ShowPlotMode",
       "title": "디버그플롯(0)",
       "descr": "1:가속도,2:조향가속도,3:속도,4:모델x",
@@ -1023,14 +1023,14 @@
       "unit": 1
     },
     {
-      "group": "차량간격",
+      "group": "즐겨찾기",
       "name": "TFollowRatio",
       "title": "위험:차량간격비율(100%)",
       "descr": "100%이하로 하면 위험~",
       "min": 70,
       "max": 150,
       "default": 110,
-      "unit": 1
+      "unit": 5
     },
     {
       "group": "감속제어",
@@ -1069,7 +1069,7 @@
       "descr": "1:연비,2:안전,3:일반,4:고속(신호무시),5:자동",
       "min": 1,
       "max": 5,
-      "default": 3,
+      "default": 5,
       "unit": 1
     },
     {
@@ -1079,7 +1079,7 @@
       "descr": "0:사용안함, 1:APM, 2:APM + 순정네비게이션, 3:NDA , 재시작필요",
       "min": 0,
       "max": 3,
-      "default": 2,
+      "default": 3,
       "unit": 1
     },
     {
@@ -1089,7 +1089,7 @@
       "descr": "0:기존방식, 1:APILOT방식",
       "min": 0,
       "max": 1,
-      "default": 1,
+      "default": 0,
       "unit": 1
     },
     {
@@ -1099,7 +1099,7 @@
       "descr": "감속시작시점을 설정합니다.",
       "min": 10,
       "max": 50,
-      "default": 22,
+      "default": 16,
       "unit": 1
     },
     {
@@ -1109,7 +1109,7 @@
       "descr": "감속종료시점을 설정합니다.",
       "min": 3,
       "max": 20,
-      "default": 6,
+      "default": 3,
       "unit": 1
     },
     {
@@ -1129,7 +1129,7 @@
       "descr": "",
       "min": 10,
       "max": 50,
-      "default": 35,
+      "default": 30,
       "unit": 1
     },
     {

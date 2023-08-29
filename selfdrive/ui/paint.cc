@@ -1297,8 +1297,9 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
             if (xState == cereal::LongitudinalPlan::XState::SOFT_HOLD) qstr = "SOFTHOLD";
             else qstr = "CRUISE";
         }
+        //매뉴얼 글자 색상변경 COLOR_WHITE
         else qstr = "MANUAL";
-        if (qstr != _qstr) ui_draw_text_a(s, x, y + 175, qstr.toStdString().c_str(), 40, COLOR_WHITE, BOLD);
+        if (qstr != _qstr) ui_draw_text_a(s, x, y + 195, qstr.toStdString().c_str(), 40, COLOR_RED, BOLD);
         _qstr = qstr;
 
     }
