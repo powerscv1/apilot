@@ -2,9 +2,9 @@
   "apilot": 20220111,
   "params": [
     {
-      "group": "조향일반",
+      "group": "즐겨찾기",
       "name": "PathOffset",
-      "title": "차선치우침 좌우보정(0)",
+      "title": "1 차선치우침 좌우보정(0)",
       "descr": "(-)좌측,(+)우측",
       "egroup": "LAT",
       "etitle": "PathOffset (0)",
@@ -123,9 +123,9 @@
       "unit": 1
     },
     {
-      "group": "조향튜닝",
+      "group": "즐겨찾기",
       "name": "LateralTorqueAccelFactor",
-      "title": "_LateralTorqueAccelFactor*0.001(2500)",
+      "title": "2 _LateralTorqueAccelFactor*0.001(2500)",
       "descr": "",
       "min": 1000,
       "max": 4000,
@@ -133,9 +133,9 @@
       "unit": 1
     },
     {
-      "group": "조향튜닝",
+      "group": "즐겨찾기",
       "name": "LateralTorqueFriction",
-      "title": "_LateralTorqueFriction*0.001(100)",
+      "title": "3 _LateralTorqueFriction*0.001(100)",
       "descr": "",
       "min": 0,
       "max": 1000,
@@ -283,9 +283,9 @@
       "unit": 5
     },
     {
-      "group": "주행튜닝",
+      "group": "즐겨찾기",
       "name": "JerkStartLimit",
-      "title": "JERK START(10)x0.1",
+      "title": "4 JERK START(10)x0.1",
       "descr": "값이 커지면 출발응답성이 빨라집니다.",
       "min": 1,
       "max": 50,
@@ -519,7 +519,7 @@
       "descr": "0:1~4, 1:1~5, 2:4~5, 3:4~5(크루즈OFF모드) (4:Auto, 5:크루즈ON제한모드)",
       "min": 0,
       "max": 3,
-      "default": 0,
+      "default": 3,
       "unit": 1
     },
     {
@@ -529,7 +529,7 @@
       "descr": "크루즈갭 버튼의 초기값을 지정",
       "min": 1,
       "max": 4,
-      "default": 0,
+      "default": 4,
       "unit": 1
     },
     {
@@ -653,7 +653,7 @@
       "unit": 10
     },
     {
-      "group": "화면",
+      "group": "즐겨찾기",
       "name": "ShowDebugUI",
       "title": "디버그정보 표시",
       "descr": "",
@@ -703,7 +703,7 @@
       "unit": 1
     },
     {
-      "group": "화면",
+      "group": "즐겨찾기",
       "name": "ShowAccelRpm",
       "title": "가속도표시",
       "descr": "0:표시안함,1:가속도,2:가속도+RPM",
@@ -733,7 +733,7 @@
       "unit": 1
     },
     {
-      "group": "화면",
+      "group": "즐겨찾기",
       "name": "ShowDeviceState",
       "title": "디바이스정보",
       "descr": "",
@@ -883,7 +883,7 @@
       "unit": 10
     },
     {
-      "group": "화면",
+      "group": "즐겨찾기",
       "name": "ShowPlotMode",
       "title": "디버그플롯(0)",
       "descr": "1:가속도,2:조향가속도,3:속도,4:모델x",
@@ -963,7 +963,7 @@
       "unit": 1
     },
     {
-      "group": "시작",
+      "group": "즐겨찾기",
       "name": "MixRadarInfo",
       "title": "SCC레이더 비젼 MIX",
       "descr": "SCC레이더의 부족한 성능을 비젼거리측정데이터와 MIX하여 주행",
@@ -1079,7 +1079,7 @@
       "descr": "1:연비,2:안전,3:일반,4:고속(신호무시),5:자동",
       "min": 1,
       "max": 5,
-      "default": 3,
+      "default": 5,
       "unit": 1
     },
     {
