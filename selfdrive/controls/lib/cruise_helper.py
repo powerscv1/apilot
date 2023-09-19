@@ -99,6 +99,8 @@ class CruiseHelper:
 
     self.leadCarSpeed = 0.
 
+    self.xIndex = 0
+
     self.update_params_count = 0
     self.curvatureFilter = StreamingMovingAverage(20)
 
@@ -595,11 +597,11 @@ class CruiseHelper:
           longActiveUser = -2
         #  2. 신호감지감속중: cruiseOFF: 신호감지감속이 맘에 안드는 상태, 가속페달을 밟으면 해제
         elif self.xState in [XState.e2eStop, XState.e2eCruise, XState.e2eCruisePrepare] and self.v_ego_kph < v_cruise_kph and (self.trafficState % 10) == 1: #controls.v_future*CV.MS_TO_KPH < v_ego_kph * 0.6: 
-          v_cruise_kph = self.v_ego_kph_set
+          #v_cruise_kph = self.v_ego_kph_set
           longActiveUser = -2
         #  3. 저속주행: cruiseOFF(autoResumeFromGasSpeed 이하): 조건(autoCancelFromGasMode)에 따라 선행차의 유무에 따라 크루즈 해제
         elif self.v_ego_kph < self.autoResumeFromGasSpeed:
-          v_cruise_kph = self.v_ego_kph_set
+          #v_cruise_kph = self.v_ego_kph_set
           if self.autoCancelFromGasMode == 1:
             longActiveUser = -2
           elif self.autoCancelFromGasMode == 2 and self.dRel==0: # mode:2일때는 선행차가 없을때만
@@ -825,6 +827,7 @@ class CruiseHelper:
       elif button == ButtonType.gapAdjustCruise and self.gapButtonMode == 3:
         if self.longActiveUser > 0: # and self.gapButtonMode == 3:
           longActiveUser = -1
+          self.v_cruise_kph_backup = v_cruise_kph
         else:
           longActiveUser = 1
           v_cruise_kph = max(v_cruise_kph, self.v_cruise_kph_backup, self.v_ego_kph_set) #브레이크를 밟기전 속도로 복원..
@@ -855,6 +858,44 @@ class CruiseHelper:
         self.cruiseSpeedTarget = 0
 
     return v_cruise_kph_apply
+
+  def update_apilot_cmd(self, controls, v_cruise_kph, longActiveUser):
+    msg = controls.sm['roadLimitSpeed']
+    #print(msg.xCmd, msg.xArg, msg.xIndex)
+
+    if msg.xIndex > 0 and msg.xIndex != self.xIndex:
+      self.xIndex = msg.xIndex
+      if msg.xCmd == "SPEED":
+        if msg.xArg == "UP":
+          v_cruise_kph = self.v_cruise_speed_up(v_cruise_kph, self.roadSpeed)
+        elif msg.xArg == "DOWN":
+          if self.v_ego_kph_set < v_cruise_kph:
+            v_cruise_kph = self.v_ego_kph_set
+          elif v_cruise_kph > 30:
+            v_cruise_kph -= 10
+        else:
+          v_cruise_kph = clip(int(msg.xArg), self.cruiseSpeedMin, MAX_SET_SPEED_KPH)
+      elif msg.xCmd == "CRUISE":
+        if msg.xArg == "ON":
+          longActiveUser = 1
+        elif msg.xArg == "OFF":
+          self.userCruisePaused = True
+          longActiveUser = -1
+        elif msg.xArg == "GO":
+          if longActiveUser <= 0:
+            longActiveUser = 1
+          elif self.xState in [XState.softHold, XState.e2eStop]:
+            controls.cruiseButtonCounter += 1
+          else:
+            v_cruise_kph = self.v_cruise_speed_up(v_cruise_kph, self.roadSpeed)
+        elif msg.xArg == "STOP":
+          if self.xState in [XState.e2eStop, XState.e2eCruisePrepare]:
+            controls.cruiseButtonCounter -= 1
+          else:
+            v_cruise_kph = 20
+      elif msg.xCmd == "LANECHANGE":
+        pass
+    return v_cruise_kph, longActiveUser
 
   def update_v_cruise_apilot(self, v_cruise_kph, buttonEvents, enabled, metric, controls, CS):
     longActiveUser = self.longActiveUser
@@ -918,6 +959,8 @@ class CruiseHelper:
 
     brakePressed = CS.brakePressed or CS.regenBraking
     longActiveUser, v_cruise_kph, self.v_cruise_kph_backup = self.button_control(enabled, controls, CS, v_cruise_kph, buttonEvents, metric)
+
+    v_cruise_kph, longActiveUser = self.update_apilot_cmd(controls, v_cruise_kph, longActiveUser)
     if controls.enabled:      
 
       if brakePressed:
