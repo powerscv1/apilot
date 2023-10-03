@@ -1,3 +1,15 @@
+231002 - APILOT
+* Jerk dynamic control 2가지 방법시험중(HKG only)
+  * 0: COMMA Default 일정값적용
+  * 1: Jerk(long_mpc)값을 이용한  반영
+  * 2: Accel diff 를 이용한 jerk 반영
+
+230930 - APILOT
+* KONA전용 Jerk dynamic control 적용
+
+230929 - APILOT
+* TR(Gap) control방식 변경
+
 230919 - APILOT
 * Dynamic Jerk control (HKG only)
 * VOO service (APM required)

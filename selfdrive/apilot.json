@@ -2,9 +2,9 @@
   "apilot": 20220111,
   "params": [
     {
-      "group": "즐겨찾기",
+      "group": "조향일반",
       "name": "PathOffset",
-      "title": "1 차선치우침 좌우보정(0)",
+      "title": "차선치우침 좌우보정(0)",
       "descr": "(-)좌측,(+)우측",
       "egroup": "LAT",
       "etitle": "PathOffset (0)",
@@ -123,9 +123,9 @@
       "unit": 1
     },
     {
-      "group": "즐겨찾기",
+      "group": "조향튜닝",
       "name": "LateralTorqueAccelFactor",
-      "title": "2 _LateralTorqueAccelFactor*0.001(2500)",
+      "title": "_LateralTorqueAccelFactor*0.001(2500)",
       "descr": "",
       "min": 1000,
       "max": 4000,
@@ -133,9 +133,9 @@
       "unit": 1
     },
     {
-      "group": "즐겨찾기",
+      "group": "조향튜닝",
       "name": "LateralTorqueFriction",
-      "title": "3 _LateralTorqueFriction*0.001(100)",
+      "title": "_LateralTorqueFriction*0.001(100)",
       "descr": "",
       "min": 0,
       "max": 1000,
@@ -283,9 +283,19 @@
       "unit": 5
     },
     {
-      "group": "즐겨찾기",
+      "group": "주행튜닝",
+      "name": "DynamicJerk",
+      "title": "JERK DYNAMIC(0)",
+      "descr": "0:Normal,1:Jerk cmd, 2:Accel diff",
+      "min": 0,
+      "max": 2,
+      "default": 0,
+      "unit": 1
+    },
+    {
+      "group": "주행튜닝",
       "name": "JerkStartLimit",
-      "title": "4 JERK START(10)x0.1",
+      "title": "JERK START(10)x0.1",
       "descr": "값이 커지면 출발응답성이 빨라집니다.",
       "min": 1,
       "max": 50,
@@ -516,10 +526,10 @@
       "group": "버튼설정",
       "name": "GapButtonMode",
       "title": "크루즈갭버튼 작동모드(0)",
-      "descr": "0:1~4, 1:1~5, 2:4~5, 3:4~5(크루즈OFF모드) (4:Auto, 5:크루즈ON제한모드)",
+      "descr": "0:1~4, 1:1~5, 2:4~5, 3:4~5(크루즈OFF모드)",
       "min": 0,
       "max": 3,
-      "default": 3,
+      "default": 0,
       "unit": 1
     },
     {
@@ -529,7 +539,7 @@
       "descr": "크루즈갭 버튼의 초기값을 지정",
       "min": 1,
       "max": 4,
-      "default": 4,
+      "default": 0,
       "unit": 1
     },
     {
@@ -653,7 +663,7 @@
       "unit": 10
     },
     {
-      "group": "즐겨찾기",
+      "group": "화면",
       "name": "ShowDebugUI",
       "title": "디버그정보 표시",
       "descr": "",
@@ -703,7 +713,7 @@
       "unit": 1
     },
     {
-      "group": "즐겨찾기",
+      "group": "화면",
       "name": "ShowAccelRpm",
       "title": "가속도표시",
       "descr": "0:표시안함,1:가속도,2:가속도+RPM",
@@ -733,7 +743,7 @@
       "unit": 1
     },
     {
-      "group": "즐겨찾기",
+      "group": "화면",
       "name": "ShowDeviceState",
       "title": "디바이스정보",
       "descr": "",
@@ -883,7 +893,7 @@
       "unit": 10
     },
     {
-      "group": "즐겨찾기",
+      "group": "화면",
       "name": "ShowPlotMode",
       "title": "디버그플롯(0)",
       "descr": "1:가속도,2:조향가속도,3:속도,4:모델x",
@@ -963,7 +973,7 @@
       "unit": 1
     },
     {
-      "group": "즐겨찾기",
+      "group": "시작",
       "name": "MixRadarInfo",
       "title": "SCC레이더 비젼 MIX",
       "descr": "SCC레이더의 부족한 성능을 비젼거리측정데이터와 MIX하여 주행",
@@ -1004,43 +1014,53 @@
     },
     {
       "group": "차량간격",
-      "name": "ApplyDynamicTFollow",
-      "title": "상대속도-(100%)",
-      "descr": "점점가까와지면 간격을 증가하도록 함",
+      "name": "TFollowSpeedRatio",
+      "title": "차량간격시간 속도별 증감율 (110%)",
+      "descr": "속도에따라 차간거리 증가, 정지(100%) - 100km/h(설정값)",
       "min": 100,
       "max": 300,
-      "default": 100,
-      "unit": 1
-    },
-    {
-      "group": "차량간격",
-      "name": "ApplyDynamicTFollowApart",
-      "title": "상대속도+(95%)",
-      "descr": "멀어지면 간격을 줄이도록 함",
-      "min": 20,
-      "max": 100,
-      "default": 100,
-      "unit": 1
-    },
-    {
-      "group": "차량간격",
-      "name": "ApplyDynamicTFollowDecel",
-      "title": "감속(100%)",
-      "descr": "감속도에 따라 간격을 증가하도록 함",
-      "min": 100,
-      "max": 200,
-      "default": 100,
-      "unit": 1
-    },
-    {
-      "group": "차량간격",
-      "name": "TFollowRatio",
-      "title": "위험:차량간격비율(100%)",
-      "descr": "100%이하로 하면 위험~",
-      "min": 70,
-      "max": 150,
       "default": 110,
-      "unit": 1
+      "unit": 5
+    },
+    {
+      "group": "차량간격",
+      "name": "TFollowGap1",
+      "title": "차량간격시간 1단계 x0.01초(110)",
+      "descr": "단계별 차간 시간거리 설정",
+      "min": 90,
+      "max": 300,
+      "default": 110,
+      "unit": 5
+    },
+    {
+      "group": "차량간격",
+      "name": "TFollowGap2",
+      "title": "차량간격시간 2단계 x0.01초(120)",
+      "descr": "단계별 차간 시간거리 설정",
+      "min": 90,
+      "max": 300,
+      "default": 120,
+      "unit": 5
+    },
+    {
+      "group": "차량간격",
+      "name": "TFollowGap3",
+      "title": "차량간격시간 3단계 x0.01초(160)",
+      "descr": "단계별 차간 시간거리 설정",
+      "min": 90,
+      "max": 300,
+      "default": 160,
+      "unit": 5
+    },
+    {
+      "group": "차량간격",
+      "name": "TFollowGap4",
+      "title": "차량간격시간 4단계 x0.01초(120)",
+      "descr": "단계별 차간 시간거리 설정",
+      "min": 90,
+      "max": 300,
+      "default": 120,
+      "unit": 5
     },
     {
       "group": "감속제어",
@@ -1079,7 +1099,7 @@
       "descr": "1:연비,2:안전,3:일반,4:고속(신호무시),5:자동",
       "min": 1,
       "max": 5,
-      "default": 5,
+      "default": 3,
       "unit": 1
     },
     {

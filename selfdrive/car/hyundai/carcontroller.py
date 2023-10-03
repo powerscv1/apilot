@@ -9,6 +9,7 @@ from selfdrive.car.hyundai.values import HyundaiFlags, Buttons, CarControllerPar
 import random
 from random import randint
 from common.params import Params
+from common.filter_simple import StreamingMovingAverage
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 LongCtrlState = car.CarControl.Actuators.LongControlState
@@ -59,6 +60,7 @@ class CarController:
     self.send_lfa_mfa_lkas = CP.flags & HyundaiFlags.SEND_LFA.value
     self.last_button_frame = 0
     self.pcmCruiseButtonDelay = 0
+    self.dynamicJerk = 0
     self.jerkStartLimit = 1.0
     self.jerkUpperLowerLimit = 12.0       
     self.speedCameraHapticEndFrame = 0
@@ -71,6 +73,7 @@ class CarController:
     self.steerDeltaDown = 7
     self.button_wait = 12
     self.jerk_count = 0
+    self.jerkFilter = StreamingMovingAverage(3)
 
   def update(self, CC, CS):
     actuators = CC.actuators
@@ -111,10 +114,13 @@ class CarController:
     elif self.frame % self.blinking_frame == self.blinking_frame / 2:
       self.blinking_signal = False
 
+    jerk = self.jerkFilter.process(actuators.jerk)
+    #jerk = accel - self.accel_last
     can_sends = []
 
     # *** common hyundai stuff ***
     if self.frame % 100 == 0:
+      self.dynamicJerk = int(Params().get("DynamicJerk", encoding="utf8"))
       self.jerkStartLimit = float(int(Params().get("JerkStartLimit", encoding="utf8"))) * 0.1
       self.jerkUpperLowerLimit = float(int(Params().get("JerkUpperLowerLimit", encoding="utf8")))
       self.hapticFeedbackWhenSpeedCamera = int(Params().get("HapticFeedbackWhenSpeedCamera", encoding="utf8"))
@@ -243,30 +249,29 @@ class CarController:
         startingJerk = self.jerkStartLimit
         self.jerk_count += DT_CTRL
         jerk_max = interp(self.jerk_count, [0, 1.5, 2.5], [startingJerk, startingJerk, self.jerkUpperLowerLimit])
+        a_diff = CS.out.aEgo - accel # (+)인경우 내려야, 
         if actuators.longControlState == LongCtrlState.off:
           jerk_u = self.jerkUpperLowerLimit
-          jerk_l = 0
+          jerk_l = self.jerkUpperLowerLimit
           self.jerk_count = 0
         elif actuators.longControlState == LongCtrlState.stopping:
           jerk_u = 0.5
           jerk_l = self.jerkUpperLowerLimit
           self.jerk_count = 0
-        elif abs(actuators.jerk) < 0.2:
-          jerk_u = jerk_l = jerk_max
-        elif accel < 0 or actuators.jerk <= 0:
-          #jerk_l = min(max(1, -accel * 2.0, - actuators.jerk * 1), jerk_max)
-          jerk_l = jerk_max
-          jerk_u = 0 if actuators.jerk < 0 else jerk_max
+        elif self.dynamicJerk == 1:
+          jerk_u = min(max(0.5, jerk * 2.0), self.jerkUpperLowerLimit)
+          jerk_l = min(max(1.0, -jerk * 2.0), self.jerkUpperLowerLimit)
+        elif self.dynamicJerk == 3:
+          jerk_max_u = interp(a_diff, [-0.5, 0.5], [jerk_max, 0.5])
+          jerk_max_l = interp(a_diff, [-0.5, 0.5], [0.5, jerk_max])
+          jerk_u = interp(jerk, [-0.1, 0, 0.2], [0.0, 1.0, jerk_max_u])  #jerk_u가 0이 아니면, KONA_EV는 감속을 안함. over감속:upper를 +로 하면? 230930
+          jerk_l = interp(jerk, [-0.1, 0, 0.5], [jerk_max_l, 0.5, 0.5])  #jerk_l이 0.5가 아니면 가속도가 안올라감.
+        elif self.dynamicJerk == 2:
+          jerk_u = interp(a_diff, [-0.5, 0.1], [jerk_max, 0.2])
+          jerk_l = interp(a_diff, [-0.1, 0.5], [0.2, jerk_max])
         else:
-          jerk_u = jerk_max
-          jerk_l = 0.5 #jerk
-        #if actuators.jerk <= 0:
-        #  jerk_l = max(1, - actuators.jerk * 2)
-        #  jerk_u = 0
-        #else:
-        #  jerk = self.jerkUpperLowerLimit if actuators.longControlState in [LongCtrlState.pid,LongCtrlState.stopping] else startingJerk  #comma: jerk=1
-        #  jerk_u = jerk #actuators.jerk *3
-        #  jerk_l = jerk #0.5 # jerk #0 if actuators.jerk > 0.5 else 1.0
+          jerk_u = jerk_l = jerk_max
+
         can_sends.extend(hyundaican.create_acc_commands_mix_scc(self.CP, self.packer, CC.enabled, accel, jerk_u, jerk_l, int(self.frame / 2),
                                                       hud_control, set_speed_in_units, stopping, CC, CS, self.softHoldMode))
         self.accel_last = accel

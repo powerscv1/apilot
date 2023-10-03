@@ -236,11 +236,12 @@ class LongitudinalMpc:
     self.trafficStopAccel = 1.
     self.trafficStopModelSpeed = True
     self.trafficStopMode = 1
-    self.applyDynamicTFollow = 1.0
-    self.applyDynamicTFollowApart = 1.0
-    self.applyDynamicTFollowDecel = 1.0
     self.softHoldMode = 1
-    self.tFollowRatio = 1.0
+    self.tFollowSpeedRatio = 1.2
+    self.tFollowGap1 = 1.1
+    self.tFollowGap2 = 1.2
+    self.tFollowGap3 = 1.6
+    self.tFollowGap4 = 1.2
     self.stopDistance = STOP_DISTANCE
     self.softHoldTimer = 0
     self.lo_timer = 0 
@@ -256,6 +257,7 @@ class LongitudinalMpc:
     self.e2eCruiseCount = 0
     self.mpcEvent = 0
     self.prev_x = 0
+    self.v_ego_kph_prev = 0.0
 
     self.t_follow = T_FOLLOW
     self.comfort_brake = COMFORT_BRAKE
@@ -369,7 +371,7 @@ class LongitudinalMpc:
     self.x0[1] = v
     self.x0[2] = a
     if abs(v_prev - v) > 2.:  # probably only helps if v < v_prev
-      for i in range(0, N+1):
+      for i in range(N+1):
         self.solver.set(i, 'x', self.x0)
 
   @staticmethod
@@ -583,12 +585,14 @@ class LongitudinalMpc:
       self.trafficStopMode = int(Params().get("TrafficStopMode", encoding="utf8"))
       self.stopDistance = float(int(Params().get("StopDistance", encoding="utf8"))) / 100.
     elif self.lo_timer == 100:
-      self.applyDynamicTFollow = float(int(Params().get("ApplyDynamicTFollow", encoding="utf8"))) / 100.
+      self.tFollowSpeedRatio = float(int(Params().get("TFollowSpeedRatio", encoding="utf8"))) / 100.
+      self.tFollowGap1 = float(int(Params().get("TFollowGap1", encoding="utf8"))) / 100.
+      self.tFollowGap2 = float(int(Params().get("TFollowGap2", encoding="utf8"))) / 100.
+      self.tFollowGap3 = float(int(Params().get("TFollowGap3", encoding="utf8"))) / 100.
+      self.tFollowGap4 = float(int(Params().get("TFollowGap4", encoding="utf8"))) / 100.
     elif self.lo_timer == 120:
-      self.applyDynamicTFollowApart = float(int(Params().get("ApplyDynamicTFollowApart", encoding="utf8"))) / 100.
-      self.applyDynamicTFollowDecel = float(int(Params().get("ApplyDynamicTFollowDecel", encoding="utf8"))) / 100.
+      pass
     elif self.lo_timer == 140:
-      self.tFollowRatio = float(int(Params().get("TFollowRatio", encoding="utf8"))) / 100.     
       self.softHoldMode = int(Params().get("SoftHoldMode", encoding="utf8"))
     elif self.lo_timer == 160:
       self.applyModelDistOrder = int(Params().get("ApplyModelDistOrder", encoding="utf8"))
@@ -596,41 +600,36 @@ class LongitudinalMpc:
 
   def update_gap_tf(self, controls, radarstate, v_ego, a_ego):
     v_ego_kph = v_ego * CV.MS_TO_KPH
-    if controls.longCruiseGap >= 4:
-      self.applyCruiseGap = interp(v_ego_kph, [0, 45, 60, 100, 120, 140], [1,1,2,2,3,4])
-      cruiseGapRatio = interp(self.applyCruiseGap, [1,2,3,4], [1.1, 1.2, 1.3, 1.45])
-      self.applyCruiseGap = clip(self.applyCruiseGap, 1, 4)
-    else:
-      self.applyCruiseGap = float(controls.longCruiseGap)
-      cruiseGapRatio = interp(controls.longCruiseGap, [1,2,3], [1.1, 1.3, 1.6])
+    #if controls.longCruiseGap >= 4:
+    #  if v_ego_kph > self.v_ego_kph_prev:  ##감속할때 gap을 줄이면.. 앞차로 너무 다가가는 경향이... 가속할때만... 자동gap
+    #    self.applyCruiseGap = interp(v_ego_kph, [0, 45, 60, 100, 120, 140], [1,1,2,2,3,4])
+    #  cruiseGapRatio = interp(self.applyCruiseGap, [1,2,3,4], [1.1, 1.2, 1.3, 1.45])
+    #  self.applyCruiseGap = clip(self.applyCruiseGap, 1, 4)
+    #else:
+    #  self.applyCruiseGap = float(controls.longCruiseGap)
+    #  cruiseGapRatio = interp(controls.longCruiseGap, [1,2,3], [1.1, 1.3, 1.6])
 
-    self.t_follow = max(0.9, cruiseGapRatio * self.tFollowRatio * (2.0 - self.mySafeModeFactor)) # 0.9아래는 위험하니 적용안함.
+    if v_ego_kph >= self.v_ego_kph_prev: # 감속일때는 t_follow(gap) 계산안함.
+      self.applyCruiseGap = clip(controls.longCruiseGap, 1, 4)
+      cruiseGap_dict = {
+        1: self.tFollowGap1,
+        2: self.tFollowGap2,
+        3: self.tFollowGap3,
+        4: self.tFollowGap4,
+        }
+      tf = cruiseGap_dict[self.applyCruiseGap]
+      cruiseGapRatio = interp(v_ego_kph, [0, 100], [tf, tf * self.tFollowSpeedRatio]) 
+      self.t_follow = max(0.9, cruiseGapRatio * (2.0 - self.mySafeModeFactor)) # 0.9아래는 위험하니 적용안함.
 
+    self.v_ego_kph_prev = v_ego_kph
 
     # lead값을 고의로 줄여주면, 빨리 감속, lead값을 늘려주면 빨리가속,
     if radarstate.leadOne.status:
-      self.t_follow *= interp(radarstate.leadOne.vRel*3.6, [-100., 0, 100.], [self.applyDynamicTFollow, 1.0, self.applyDynamicTFollowApart])
-      #self.t_follow *= interp(self.prev_a[0], [-4, 0], [self.applyDynamicTFollowDecel, 1.0])
-      # 선행차감속도* 내차감속도 : 둘다감속이 심하면 더 t_follow를 크게..
-      self.t_follow *= interp(radarstate.leadOne.aLeadK, [-4, 0], [self.applyDynamicTFollowDecel, 1.0]) # 선행차의 accel텀은 이미 사용하고 있지만(aLeadK).... 그러나, t_follow에 추가로 적용시험
-      self.t_follow *= interp(a_ego, [-4, 0], [self.applyDynamicTFollowDecel, 1.0]) # 내차의 감속도에 추가 적용
-
       if not self.openpilotLongitudinalControl:
         if v_ego_kph < 0.1:
           self.applyCruiseGap = 1
         else:
-          self.applyCruiseGap = int(interp(a_ego, [-1.5, -0.5], [4, self.applyCruiseGap]))
-        #elif v_ego_kph < 60:
-        #  self.applyCruiseGap = int(interp(radarstate.leadOne.vRel*3.6, [-5.0, -2.0, -1.0], [4, self.applyCruiseGap, 1]))
-        #elif v_ego_kph < 120:
-        #  self.applyCruiseGap = int(interp(radarstate.leadOne.vRel*3.6, [-10.0, -5.0, -1.0], [4, self.applyCruiseGap, 2]))
-        #else:
-        #  self.applyCruiseGap = int(interp(radarstate.leadOne.vRel*3.6, [-20.0, -10.0, -1.0], [4, self.applyCruiseGap, 3]))
-      
-        #elif a_ego < 0.1:
-        #  self.applyCruiseGap = int(interp(a_ego, [-2.0, 0.0], [4, self.applyCruiseGap]))
-        #else:
-        #  self.applyCruiseGap = int(interp(radarstate.leadOne.vRel*3.6, [0, 10.0], [self.applyCruiseGap, 1]))
+          self.applyCruiseGap = int(interp(a_ego, [-1.5, -0.5], [3, self.applyCruiseGap]))
 
   def update_stop_dist(self, stop_x):
     stop_x = self.xStopFilter.process(stop_x, median = True)
@@ -659,7 +658,7 @@ class LongitudinalMpc:
 
     if self.stopSignCount * DT_MDL > 0.0 and carstate.rightBlinker == False:
       self.trafficState = 1
-    elif self.startSignCount * DT_MDL > 0.3:
+    elif self.startSignCount * DT_MDL > 0.1:
       self.trafficState = 2  
     else:
       self.trafficState = 0
@@ -772,7 +771,7 @@ class LongitudinalMpc:
             self.stopDist = 0.0
             v_cruise = 0.0
             stop_x = 0.0
-        elif radar_detected and (radarstate.leadOne.dRel - stop_x) < 4.0: # 레이더감지, 정지라인보다 선행차가 가까이있다면..  2->4M : 즉 정지선이 앞차보다 4M뒤에 있다면 앞차안봄..
+        elif radar_detected and (radarstate.leadOne.dRel - stop_x) < 2.0: # 레이더감지, 정지라인보다 선행차가 가까이있다면..  2: 즉 정지선이 앞차보다 2M뒤에 있다면 앞차안봄..
           self.xState = XState.lead
           stop_x = 1000.0
         elif cruiseButtonCounterDiff > 0:
@@ -788,7 +787,9 @@ class LongitudinalMpc:
               self.xState = XState.e2eCruisePrepare
               stop_x = 1000.0
             else:
-              self.stopDist = self.xStop  * interp(self.xStop, [0, 100], [1.0, self.trafficStopAdjustRatio])  ##남은거리에 따라 정지거리 비율조정
+              stop_dist = self.xStop  * interp(self.xStop, [0, 100], [1.0, self.trafficStopAdjustRatio])  ##남은거리에 따라 정지거리 비율조정
+              if stop_dist > 5.0:
+                self.stopDist = stop_dist
               stop_x = 0.0
           self.fakeCruiseDistance = 0 if self.stopDist > 10.0 else 10.0
     ## e2eCruisePrepare 일시정지중
@@ -824,6 +825,7 @@ class LongitudinalMpc:
       elif self.trafficState == 1 and not carstate.gasPressed:
         self.xState = XState.e2eStop
         self.mpcEvent = EventName.trafficStopping
+        self.stopDist = self.xStop
       else:
         self.xState = XState.e2eCruise
         if carstate.brakePressed and v_ego_kph < 1.0  and self.softHoldMode > 0:
@@ -850,7 +852,7 @@ class LongitudinalMpc:
     elif stop_x == 1000.0:
       self.stopDist = 0.0
     elif self.stopDist > 0:
-      stop_dist = v_ego ** 2 / (2.2 * 2)
+      stop_dist = v_ego ** 2 / (2.0 * 2)
       self.stopDist = self.stopDist if self.stopDist > stop_dist else stop_dist
       stop_x = 0.0
 #    else:

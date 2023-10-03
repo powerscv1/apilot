@@ -172,7 +172,7 @@ class RoadLimitSpeedServer:
       if ret:
         data, self.remote_addr = sock.recvfrom(2048)
         json_obj = json.loads(data.decode())
-        print(json_obj)
+        #print(json_obj)
 
         if 'cmd' in json_obj:
           try:
@@ -497,17 +497,21 @@ def main():
           sdiDebugText += "B-{}/{}/{} ".format(nSdiBlockType, int(nSdiBlockDist), nSdiBlockSpeed)
         if nTBTTurnType >= 0:
           sdiDebugText += "T-{}/{} ".format(nTBTTurnType, int(nTBTDist))
-        if ret:
-          print(sdiDebugText)
+        #if ret:
+        #  print(sdiDebugText)
 
         if nTBTTurnType in [12, 16]:
           xTurnInfo = 1  # turn left
         elif nTBTTurnType in [13, 19]:
           xTurnInfo = 2  # turn right
-        elif nTBTTurnType in [7, 44, 17, 75, 102, 105, 112, 115, 76, 118]: # left lanechange
+        #elif nTBTTurnType in [7, 44, 17, 75, 102, 105, 112, 115, 76, 118]: # left lanechange
+        elif nTBTTurnType in [7, 17, 102, 105, 112, 115, 76, 118]: # left lanechange
           xTurnInfo = 3  # slight left
-        elif nTBTTurnType in [6, 43, 73, 74, 101, 104, 111, 114, 123, 124, 117]: # right lanechange
+        #elif nTBTTurnType in [6, 43, 73, 74, 101, 104, 111, 114, 123, 124, 117]: # right lanechange
+        elif nTBTTurnType in [6, 43, 73, 74, 101, 104, 111, 114]: # right lanechange
           xTurnInfo = 4  # slight right
+        elif nTBTTurnType in [14, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142]:
+          xTurnInfo = 5 # speed down
         elif nTBTTurnType >= 0:
           xTurnInfo = -1
         if nTBTDist > 0:
@@ -588,7 +592,7 @@ def main():
         dat.roadLimitSpeed.xRoadLimitSpeed = int(xRoadLimitSpeed)
         if xRoadLimitSpeed > 0:
           dat.roadLimitSpeed.roadLimitSpeed = int(xRoadLimitSpeed)
-        dat.roadLimitSpeed.xRoadName = xRoadName + sdiDebugText
+        dat.roadLimitSpeed.xRoadName = xRoadName # + sdiDebugText
 
         dat.roadLimitSpeed.xCmd = "" if xCmd is None else xCmd
         dat.roadLimitSpeed.xArg = "" if xArg is None else xArg
