@@ -2,9 +2,9 @@
   "apilot": 20220111,
   "params": [
     {
-      "group": "조향일반",
+      "group": "즐겨찾기",
       "name": "PathOffset",
-      "title": "차선치우침 좌우보정(0)",
+      "title": "1 차선치우침 좌우보정(0)",
       "descr": "(-)좌측,(+)우측",
       "egroup": "LAT",
       "etitle": "PathOffset (0)",
@@ -12,7 +12,7 @@
       "min": -200,
       "max": 200,
       "default": 0,
-      "unit": 1
+      "unit": 5
     },
     {
       "group": "정지",
@@ -213,7 +213,7 @@
       "unit": 1
     },
     {
-      "group": "가속설정",
+      "group": "즐겨찾기",
       "name": "CruiseMaxVals1",
       "title": "가속설정1:0km/h(160)",
       "descr": "가속도를 설정합니다. (x0.01m/s^2)",
@@ -283,7 +283,7 @@
       "unit": 5
     },
     {
-      "group": "주행튜닝",
+      "group": "즐겨찾기",
       "name": "JerkStartLimit",
       "title": "JERK START(10)x0.1(20)",
       "descr": "값이 커지면 출발응답성이 빨라집니다.",
@@ -448,9 +448,9 @@
       "title": "자동차선변경속도(30)",
       "descr": "해당속도 이상에서만 자동차선변경",
       "min": 5,
-      "max": 60,
+      "max": 200,
       "default": 30,
-      "unit": 5
+      "unit": 10
     },
     {
       "group": "버튼설정",
@@ -613,7 +613,7 @@
       "unit": 10
     },
     {
-      "group": "화면",
+      "group": "즐겨찾기",
       "name": "ShowDebugUI",
       "title": "디버그정보 표시",
       "descr": "",
@@ -693,7 +693,7 @@
       "unit": 1
     },
     {
-      "group": "화면",
+      "group": "즐겨찾기",
       "name": "ShowDeviceState",
       "title": "디바이스정보",
       "descr": "",
@@ -843,7 +843,7 @@
       "unit": 10
     },
     {
-      "group": "화면",
+      "group": "즐겨찾기",
       "name": "ShowPlotMode",
       "title": "디버그플롯(0)",
       "descr": "1:가속도,2:조향가속도,3:속도,4:모델x",
@@ -963,7 +963,7 @@
       "unit": 1
     },
     {
-      "group": "차량간격",
+      "group": "즐겨찾기",
       "name": "TFollowSpeedRatio",
       "title": "차량간격시간 속도별 증감율 (110%)",
       "descr": "속도에따라 차간거리 증가, 정지(100%) - 100km/h(설정값)",
@@ -1003,7 +1003,7 @@
       "unit": 5
     },
     {
-      "group": "차량간격",
+      "group": "즐겨찾기",
       "name": "TFollowGap4",
       "title": "차량간격시간 4단계 x0.01초(120)",
       "descr": "단계별 차간 시간거리 설정",
