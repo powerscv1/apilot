@@ -9,7 +9,6 @@ from selfdrive.car.hyundai.values import HyundaiFlags, Buttons, CarControllerPar
 import random
 from random import randint
 from common.params import Params
-from common.filter_simple import StreamingMovingAverage
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 LongCtrlState = car.CarControl.Actuators.LongControlState
@@ -71,7 +70,12 @@ class CarController:
     self.steerDeltaDown = 7
     self.button_wait = 12
     self.jerk_count = 0
-    self.jerkFilter = StreamingMovingAverage(3)
+
+    # for Legacy mode car auto resume (DH etc, not tested)
+    self.resume_cnt = 0
+    self.resume_wait_timer = 0
+    self.button_alive = 0
+    self.button_alive_frame = 0
 
   def update(self, CC, CS):
     actuators = CC.actuators
@@ -112,7 +116,7 @@ class CarController:
     elif self.frame % self.blinking_frame == self.blinking_frame / 2:
       self.blinking_signal = False
 
-    jerk = self.jerkFilter.process(actuators.jerk)
+    jerk = actuators.jerk
     #jerk = accel - self.accel_last
     can_sends = []
 
@@ -201,39 +205,57 @@ class CarController:
         if CC.cruiseControl.cancel:
           can_sends.append(hyundaican.create_clu11(self.packer, self.frame, CS.clu11, Buttons.CANCEL, self.CP.carFingerprint))
         elif CC.cruiseControl.resume:
-          # send resume at a max freq of 10Hz
-          if (self.frame - self.last_button_frame) * DT_CTRL > 0.1:
-            # send 25 messages at a time to increases the likelihood of resume being accepted
-            #can_sends.extend([hyundaican.create_clu11(self.packer, self.frame, CS.clu11, Buttons.RES_ACCEL, self.CP.carFingerprint)] * 25)
-            can_sends.append(hyundaican.create_clu11_button(self.packer, self.frame, CS.clu11, Buttons.RES_ACCEL, self.CP.carFingerprint))
-            self.last_button_frame = self.frame
+          if self.CP.carFingerprint in LEGACY_SAFETY_MODE_CAR:            
+            if self.resume_wait_timer > 0:
+              self.resume_wait_timer -= 1
+            else:
+              can_sends.append(hyundaican.create_clu11_button(self.packer, self.frame, CS.clu11, Buttons.RES_ACCEL, self.CP.carFingerprint))
+              self.resume_cnt += 1
+              if self.resume_cnt >= int(randint(4, 5) * 2):
+                self.resume_cnt = 0
+                self.resume_wait_timer = int(randint(20, 25) * 2)
+              
+          else:
+            # send resume at a max freq of 10Hz
+            if (self.frame - self.last_button_frame) * DT_CTRL > 0.1:
+              # send 25 messages at a time to increases the likelihood of resume being accepted
+              #can_sends.extend([hyundaican.create_clu11(self.packer, self.frame, CS.clu11, Buttons.RES_ACCEL, self.CP.carFingerprint)] * 25)
+              can_sends.append(hyundaican.create_clu11_button(self.packer, self.frame, CS.clu11, Buttons.RES_ACCEL, self.CP.carFingerprint))
+              self.last_button_frame = self.frame
         else:
+          self.resume_wait_timer = 0
+          self.resume_cnt = 0
           target = int(set_speed_in_units+0.5)
           current = int(CS.out.cruiseState.speed*CV.MS_TO_KPH + 0.5)
 
           #CC.debugTextCC = "BTN:00,T:{:.1f},C:{:.1f},{},{}".format(target, current, self.wait_timer, self.alive_timer)
-          if CC.enabled and (self.frame - self.last_button_frame) > self.button_wait and CS.cruise_buttons[-1] == Buttons.NONE:
-            self.button_wait = randint(7,15)
-            self.last_button_frame = self.frame
-            if not CS.out.cruiseState.enabled:
-              if CC.longActive: # and hud_control.leadVisible:
-                can_sends.append(hyundaican.create_clu11_button(self.packer, self.frame, CS.clu11, Buttons.RES_ACCEL, self.CP.carFingerprint))
-                #CC.debugTextCC = "BTN:++,T:{:.1f},C:{:.1f}".format(target, current)
-              elif CC.longActive:
-                can_sends.append(hyundaican.create_clu11_button(self.packer, self.frame, CS.clu11, Buttons.SET_DECEL, self.CP.carFingerprint))
-                #CC.debugTextCC = "BTN:--,T:{:.1f},C:{:.1f}".format(target, current)
+          if (self.frame - self.last_button_frame) > self.button_wait:
+            if (self.frame - self.button_alive_frame) > self.button_alive:
+              self.button_wait = randint(8,15)
+              self.last_button_frame = self.frame
+            elif CC.enabled and CS.cruise_buttons[-1] == Buttons.NONE:
+              if not CS.out.cruiseState.enabled:
+                if CC.longActive and (hud_control.leadVisible or current > 10.0):
+                  can_sends.append(hyundaican.create_clu11_button(self.packer, self.frame, CS.clu11, Buttons.RES_ACCEL, self.CP.carFingerprint))
+                  CC.debugTextCC = "BTN:++,T:{:.1f},C:{:.1f}".format(target, current)
+                #elif CC.longActive:
+                #  can_sends.append(hyundaican.create_clu11_button(self.packer, self.frame, CS.clu11, Buttons.SET_DECEL, self.CP.carFingerprint))
+                #  CC.debugTextCC = "BTN:--,T:{:.1f},C:{:.1f}".format(target, current)
+                #elif CS.out.cruiseGap != hud_control.cruiseGap:
+                #  can_sends.append(hyundaican.create_clu11_button(self.packer, self.frame, CS.clu11, Buttons.GAP_DIST, self.CP.carFingerprint))
+                #  #print("currentGap = {}, target = {}".format(CS.out.cruiseGap, hud_control.cruiseGap))
               elif CS.out.cruiseGap != hud_control.cruiseGap:
                 can_sends.append(hyundaican.create_clu11_button(self.packer, self.frame, CS.clu11, Buttons.GAP_DIST, self.CP.carFingerprint))
-                #print("currentGap = {}, target = {}".format(CS.out.cruiseGap, hud_control.cruiseGap))
-            elif CS.out.cruiseGap != hud_control.cruiseGap:
-              can_sends.append(hyundaican.create_clu11_button(self.packer, self.frame, CS.clu11, Buttons.GAP_DIST, self.CP.carFingerprint))
-              #print("currentGap = {}, target = {}".format(CS.out.cruiseGap, hud_control.cruiseGap))
-            elif target < current and current>= 31:
-              can_sends.append(hyundaican.create_clu11_button(self.packer, self.frame, CS.clu11, Buttons.SET_DECEL, self.CP.carFingerprint))
-              #CC.debugTextCC = "BTN:--,T:{:.1f},C:{:.1f}".format(target, current)
-            elif target > current and current < 160:
-              can_sends.append(hyundaican.create_clu11_button(self.packer, self.frame, CS.clu11, Buttons.RES_ACCEL, self.CP.carFingerprint))
-              #CC.debugTextCC = "BTN:++,T:{:.1f},C:{:.1f}".format(target, current)
+                CC.debugTextCC = "currentGap = {}, target = {}".format(CS.out.cruiseGap, hud_control.cruiseGap)
+              elif target < current and current>= 31:
+                can_sends.append(hyundaican.create_clu11_button(self.packer, self.frame, CS.clu11, Buttons.SET_DECEL, self.CP.carFingerprint))
+                CC.debugTextCC = "BTN:--,T:{:.1f},C:{:.1f}".format(target, current)
+              elif target > current and current < 160:
+                can_sends.append(hyundaican.create_clu11_button(self.packer, self.frame, CS.clu11, Buttons.RES_ACCEL, self.CP.carFingerprint))
+                CC.debugTextCC = "BTN:++,T:{:.1f},C:{:.1f}".format(target, current)
+          else:
+            self.button_alive = randint(4, 8) #randint(12, 18)
+            self.button_alive_frame = self.frame
 
       #CC.debugTextCC = "230206"
 
@@ -246,8 +268,8 @@ class CarController:
         jerkLimit = 5.0
         self.jerk_count += DT_CTRL
         jerk_max = interp(self.jerk_count, [0, 1.5, 2.5], [startingJerk, startingJerk, jerkLimit])
-        a_diff = accel - CS.out.aEgo
-        speed_diff = actuators.speed - CS.out.vEgo
+        a_error = accel - CS.out.aEgo
+        v_error = actuators.speed - CS.out.vEgo
         cb_upper = cb_lower = 0
         if actuators.longControlState == LongCtrlState.off:
           jerk_u = jerkLimit
@@ -260,9 +282,8 @@ class CarController:
         else:
           jerk_u = min(max(0.5, jerk * 2.0), jerk_max)
           jerk_l = min(max(1.0, -jerk * 2.0), jerk_max)
-          cb_upper = clip((accel + abs(jerk)) * 0.1, 0, 1.0)
-          cb_lower = clip((abs(accel) + abs(jerk)) * 0.1, 0, 1.0)
-          cb_lower = cb_lower if accel < 0.0 else 0.0
+          cb_upper = clip(0.9 + accel * 0.2, 0, 1.2)
+          cb_lower = clip(0.8 + accel * 0.2, 0, 1.2)
 
         can_sends.extend(hyundaican.create_acc_commands_mix_scc(self.CP, self.packer, CC.enabled, accel, jerk_u, jerk_l, int(self.frame / 2),
                                                       hud_control, set_speed_in_units, stopping, CC, CS, self.softHoldMode, cb_upper, cb_lower))
