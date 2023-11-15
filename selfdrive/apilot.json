@@ -2,7 +2,7 @@
   "apilot": 20220111,
   "params": [
     {
-      "group": "조향일반",
+      "group": "즐겨찾기",
       "name": "PathOffset",
       "title": "차선치우침 좌우보정(0)",
       "descr": "(-)좌측,(+)우측",
@@ -12,7 +12,7 @@
       "min": -200,
       "max": 200,
       "default": 0,
-      "unit": 1
+      "unit": 5
     },
     {
       "group": "정지",
@@ -24,7 +24,7 @@
       "edescr": "Adjust stop distance",
       "min": 200,
       "max": 1000,
-      "default": 600,
+      "default": 550,
       "unit": 50
     },
     {
@@ -37,7 +37,7 @@
       "edescr": "+Value : forward",
       "min": -1000,
       "max": 1000,
-      "default": 200,
+      "default": 230,
       "unit": 10
     },
     {
@@ -64,7 +64,7 @@
       "min": 0,
       "max": 1000,
       "default": 800,
-      "unit": 1
+      "unit": 100
     },
     {
       "group": "조향튜닝",
@@ -89,7 +89,7 @@
       "edescr": "",
       "min": 0,
       "max": 1000,
-      "default": 11,
+      "default": 13,
       "unit": 1
     },
     {
@@ -141,8 +141,8 @@
       "edescr": "",
       "min": 1000,
       "max": 4000,
-      "default": 2500,
-      "unit": 1
+      "default": 2330,
+      "unit": 10
     },
     {
       "group": "조향튜닝",
@@ -154,8 +154,8 @@
       "edescr": "",
       "min": 0,
       "max": 1000,
-      "default": 100,
-      "unit": 1
+      "default": 60,
+      "unit": 5
     },
     {
       "group": "조향튜닝",
@@ -167,7 +167,7 @@
       "edescr": "",
       "min": 0,
       "max": 100,
-      "default": 30,
+      "default": 35,
       "unit": 1
     },
     {
@@ -180,7 +180,7 @@
       "edescr": "",
       "min": 0,
       "max": 10,
-      "default": 4,
+      "default": 0,
       "unit": 1
     },
     {
@@ -193,7 +193,7 @@
       "edescr": "",
       "min": -500,
       "max": 500,
-      "default": 0,
+      "default": 400,
       "unit": 50
     },
     {
@@ -219,7 +219,7 @@
       "edescr": "",
       "min": 1,
       "max": 20,
-      "default": 7,
+      "default": 6,
       "unit": 1
     },
     {
@@ -232,7 +232,7 @@
       "edescr": "0: Use LiveSteerRatio, 1:Custom value",
       "min": 0,
       "max": 300,
-      "default": 0,
+      "default": 153,
       "unit": 1
     },
     {
@@ -250,15 +250,28 @@
     },
     {
       "group": "가속설정",
-      "name": "CruiseMaxVals1",
-      "title": "가속설정1:0km/h(160)",
+      "name": "CruiseMaxVals10",
+      "title": "가속설정1:10km/h(160)",
       "descr": "가속도를 설정합니다. (x0.01m/s^2)",
       "egroup": "ACCEL",
-      "etitle": "AccelSet1:0km/h(160)",
+      "etitle": "AccelSet1:10km/h(160)",
       "edescr": "(x0.01m/s^2)",
       "min": 1,
       "max": 250,
-      "default": 160,
+      "default": 105,
+      "unit": 5
+    },
+    {
+      "group": "가속설정",
+      "name": "CruiseMaxVals1",
+      "title": "가속설정0:0km/h(160)",
+      "descr": "가속도를 설정합니다. (x0.01m/s^2)",
+      "egroup": "ACCEL",
+      "etitle": "AccelSet0:0km/h(160)",
+      "edescr": "(x0.01m/s^2)",
+      "min": 1,
+      "max": 250,
+      "default": 120,
       "unit": 5
     },
     {
@@ -271,7 +284,7 @@
       "edescr": "(x0.01m/s^2)",
       "min": 1,
       "max": 250,
-      "default": 120,
+      "default": 105,
       "unit": 5
     },
     {
@@ -280,12 +293,12 @@
       "title": "가속설정3:60km/h(100)",
       "descr": "가속도를 설정합니다. (x0.01m/s^2)",
       "egroup": "ACCEL",
-      "etitle": "AccelSet3:0km/h(100)",
+      "etitle": "AccelSet3:60km/h(100)",
       "edescr": "(x0.01m/s^2)",
       "min": 1,
       "max": 250,
-      "default": 100,
-      "unit": 5
+      "default": 35,
+      "unit": 1
     },
     {
       "group": "가속설정",
@@ -297,8 +310,8 @@
       "edescr": "(x0.01m/s^2)",
       "min": 1,
       "max": 250,
-      "default": 80,
-      "unit": 5
+      "default": 28,
+      "unit": 1
     },
     {
       "group": "가속설정",
@@ -310,8 +323,8 @@
       "edescr": "(x0.01m/s^2)",
       "min": 1,
       "max": 250,
-      "default": 70,
-      "unit": 5
+      "default": 23,
+      "unit": 1
     },
     {
       "group": "가속설정",
@@ -323,8 +336,8 @@
       "edescr": "(x0.01m/s^2)",
       "min": 1,
       "max": 250,
-      "default": 60,
-      "unit": 5
+      "default": 21,
+      "unit": 1
     },
     {
       "group": "가속설정",
@@ -349,8 +362,8 @@
       "edescr": "",
       "min": 1,
       "max": 50,
-      "default": 10,
-      "unit": 5
+      "default": 5,
+      "unit": 1
     },
     {
       "group": "주행튜닝",
@@ -362,8 +375,8 @@
       "edescr": "",
       "min": 50,
       "max": 150,
-      "default": 100,
-      "unit": 1
+      "default": 80,
+      "unit": 5
     },
     {
       "group": "주행튜닝",
@@ -375,7 +388,7 @@
       "edescr": "",
       "min": 10,
       "max": 100,
-      "default": 50,
+      "default": 40,
       "unit": 10
     },
     {
@@ -388,7 +401,7 @@
       "edescr": "",
       "min": 10,
       "max": 100,
-      "default": 50,
+      "default": 70,
       "unit": 10
     },
     {
@@ -401,8 +414,8 @@
       "edescr": "",
       "min": 0,
       "max": 2000,
-      "default": 0,
-      "unit": 1
+      "default": 110,
+      "unit": 5
     },
     {
       "group": "주행튜닝",
@@ -414,8 +427,8 @@
       "edescr": "",
       "min": 0,
       "max": 200,
-      "default": 100,
-      "unit": 1
+      "default": 95,
+      "unit": 5
     },
     {
       "group": "감속제어",
@@ -743,7 +756,7 @@
       "unit": 10
     },
     {
-      "group": "화면",
+      "group": "즐겨찾기",
       "name": "ShowDebugUI",
       "title": "디버그정보 표시",
       "descr": "",
@@ -778,7 +791,7 @@
       "edescr": "0:General,1:Apilot,2:Bottom,3:Top,4:Left,5:LeftBottom",
       "min": 0,
       "max": 5,
-      "default": 1,
+      "default": 4,
       "unit": 1
     },
     {
@@ -847,7 +860,7 @@
       "unit": 1
     },
     {
-      "group": "화면",
+      "group": "즐겨찾기",
       "name": "ShowDeviceState",
       "title": "디바이스정보",
       "descr": "",
@@ -1090,7 +1103,7 @@
       "edescr": "0:Not used",
       "min": 0,
       "max": 200,
-      "default": 0,
+      "default": 10,
       "unit": 10
     },
     {
@@ -1142,7 +1155,7 @@
       "edescr": "",
       "min": 0,
       "max": 1,
-      "default": 0,
+      "default": 1,
       "unit": 1
     },
     {
@@ -1155,7 +1168,7 @@
       "edescr": "",
       "min": 0,
       "max": 1,
-      "default": 0,
+      "default": 1,
       "unit": 1
     },
     {
@@ -1168,7 +1181,7 @@
       "edescr": "",
       "min": 0,
       "max": 1,
-      "default": 0,
+      "default": 1,
       "unit": 1
     },
     {
@@ -1220,7 +1233,7 @@
       "edescr": "",
       "min": 70,
       "max": 300,
-      "default": 110,
+      "default": 70,
       "unit": 5
     },
     {
@@ -1246,7 +1259,7 @@
       "edescr": "",
       "min": 70,
       "max": 300,
-      "default": 140,
+      "default": 110,
       "unit": 5
     },
     {
@@ -1285,7 +1298,7 @@
       "edescr": "",
       "min": 0,
       "max": 100,
-      "default": 30,
+      "default": 10,
       "unit": 10
     },
     {
@@ -1298,7 +1311,7 @@
       "edescr": "Not used",
       "min": 0,
       "max": 100,
-      "default": 30,
+      "default": 5,
       "unit": 10
     },
     {
@@ -1311,7 +1324,7 @@
       "edescr": "1:Eco,2:Safe,3:General,4:HighSpeed,5:Auto",
       "min": 1,
       "max": 5,
-      "default": 3,
+      "default": 4,
       "unit": 1
     },
     {
@@ -1324,7 +1337,7 @@
       "edescr": "0:Not used,1:APM, 2:APM+STOCK, 3:NDA (Reboot)",
       "min": 0,
       "max": 3,
-      "default": 2,
+      "default": 3,
       "unit": 1
     },
     {
