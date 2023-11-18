@@ -115,7 +115,7 @@ class CarInterface(CarInterfaceBase):
       if candidate not in (CAR.IONIQ_EV_2020, CAR.IONIQ_PHEV, CAR.IONIQ_HEV_2022):
         #ret.minSteerSpeed = 32 * CV.MPH_TO_MS
         pass
-    elif candidate == CAR.IONI>Q_PHEV_2019:
+    elif candidate == CAR.IONIQ_PHEV_2019:
       ret.mass = 1550. + STD_CARGO_KG  # weight per hyundai site https://www.hyundaiusa.com/us/en/vehicles/2019-ioniq-plug-in-hybrid/compare-specs
       ret.wheelbase = 2.7
       ret.steerRatio = 13.73
