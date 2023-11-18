@@ -115,7 +115,7 @@ class CarInterface(CarInterfaceBase):
       if candidate not in (CAR.IONIQ_EV_2020, CAR.IONIQ_PHEV, CAR.IONIQ_HEV_2022):
         #ret.minSteerSpeed = 32 * CV.MPH_TO_MS
         pass
-    elif candidate == CAR.IONIQ_PHEV_2019:
+    elif candidate == CAR.IONI>Q_PHEV_2019:
       ret.mass = 1550. + STD_CARGO_KG  # weight per hyundai site https://www.hyundaiusa.com/us/en/vehicles/2019-ioniq-plug-in-hybrid/compare-specs
       ret.wheelbase = 2.7
       ret.steerRatio = 13.73
@@ -321,6 +321,8 @@ class CarInterface(CarInterfaceBase):
     ret.stoppingDecelRate = 1.2 # brake_travel/s while trying to stop
     ret.longitudinalActuatorDelayLowerBound = 0.5
     ret.longitudinalActuatorDelayUpperBound = 0.5
+
+    ret.radarTimeStep = (1.0 / 50) # 50Hz   SCC11, RadarTrack은 50Hz로 수신되는것같음...
 
     # *** feature detection ***
     if candidate in CANFD_CAR:
