@@ -1226,12 +1226,12 @@
     {
       "group": "차량간격",
       "name": "TFollowGap1",
-      "title": "차량간격시간 1단계 x0.01초(110)",
-      "descr": "단계별 차간 시간거리 설정",
+      "title": "차량간격시간 1단계 x0.01초(70)",
+      "descr": "!!! 80이하 조심해서 사용",
       "egroup": "FDIST",
       "etitle": "TimeFollow1x0.01s(110)",
       "edescr": "",
-      "min": 70,
+      "min": 60,
       "max": 300,
       "default": 70,
       "unit": 5
@@ -1252,7 +1252,7 @@
     {
       "group": "차량간격",
       "name": "TFollowGap3",
-      "title": "차량간격시간 3단계 x0.01초(140)",
+      "title": "차량간격시간 3단계 x0.01초(110)",
       "descr": "단계별 차간 시간거리 설정",
       "egroup": "FDIST",
       "etitle": "TimeFollow3x0.01s(140)",
