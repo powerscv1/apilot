@@ -781,8 +781,9 @@ TuningPanel::TuningPanel(QWidget* parent) : QWidget(parent) {
     toggleLayout->addWidget(new CValueControl("ApplyModelDistOrder", "STOPPING: DECEL. model (30)", "숫자가적을수록 미리감속하고 서서히 정지합니다.", "../assets/offroad/icon_road.png", 1, 32, 1));
     toggleLayout->addWidget(new CValueControl("TrafficStopAdjustRatio", "STOPPING: Stop line adjust ratio (90)", "for Test", "../assets/offroad/icon_road.png", 0, 200, 1));
     toggleLayout->addWidget(horizontal_line());
-    toggleLayout->addWidget(new CValueControl("CruiseMaxVals1", "ACCEL:0km/h(160)", "속도별 가속도를 지정합니다.(x0.01m/s^2)", "../assets/offroad/icon_road.png", 1, 250, 5));
-    toggleLayout->addWidget(new CValueControl("CruiseMaxVals2", "ACCEL:40km/h(120)", "속도별 가속도를 지정합니다.(x0.01m/s^2)", "../assets/offroad/icon_road.png", 1, 250, 5));
+    toggleLayout->addWidget(new CValueControl("CruiseMaxVals1", "ACCEL:0km/h(100)", "속도별 가속도를 지정합니다.(x0.01m/s^2)", "../assets/offroad/icon_road.png", 1, 250, 5));
+    toggleLayout->addWidget(new CValueControl("CruiseMaxVals10", "ACCEL:5km/h(130)", "속도별 가속도를 지정합니다.(x0.01m/s^2)", "../assets/offroad/icon_road.png", 1, 250, 5));
+    toggleLayout->addWidget(new CValueControl("CruiseMaxVals2", "ACCEL:40km/h(105)", "속도별 가속도를 지정합니다.(x0.01m/s^2)", "../assets/offroad/icon_road.png", 1, 250, 5));
     toggleLayout->addWidget(new CValueControl("CruiseMaxVals3", "ACCEL:60km/h(100)", "속도별 가속도를 지정합니다.(x0.01m/s^2)", "../assets/offroad/icon_road.png", 1, 250, 5));
     toggleLayout->addWidget(new CValueControl("CruiseMaxVals4", "ACCEL:80km/h(80)", "속도별 가속도를 지정합니다.(x0.01m/s^2)", "../assets/offroad/icon_road.png", 1, 250, 5));
     toggleLayout->addWidget(new CValueControl("CruiseMaxVals5", "ACCEL:110km/h(70)", "속도별 가속도를 지정합니다.(x0.01m/s^2)", "../assets/offroad/icon_road.png", 1, 250, 5));
