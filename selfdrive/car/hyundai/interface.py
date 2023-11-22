@@ -324,6 +324,8 @@ class CarInterface(CarInterfaceBase):
 
     #ret.radarTimeStep = (1.0 / 50) # 50Hz   SCC11, RadarTrack은 50Hz
     ret.radarTimeStep = (1.0 / 20) # 20Hz 레이더부하줄일겸..
+    # 대신... selfdrive/controls/radard.py     radard_thread()함수에서
+    # rk.monitor_time()    => rk.keep_time()으로 변경해야합니다.. 반드시
 
     # *** feature detection ***
     if candidate in CANFD_CAR:
