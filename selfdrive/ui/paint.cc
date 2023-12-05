@@ -1275,10 +1275,10 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
     // 갭정보표시 중앙위
     sprintf(str, "%d", gap1);
     if (s->show_gap_info >= 0) {        
-        ui_draw_text(s, x + dxGap + 15 + 60, y + 60, str, 50, COLOR_WHITE, BOLD);
+        ui_draw_text(s, x + dxGap + 15 + 60, y + 60, str, 100, COLOR_WHITE, BOLD);
     }
     static int _gap1 = 0;
-    if(_gap1 != gap1) ui_draw_text_a(s, x + dxGap + 15 + 60, y + 60, str, 50, COLOR_WHITE, BOLD);
+    if(_gap1 != gap1) ui_draw_text_a(s, x + dxGap + 15 + 60, y + 60, str, 100, COLOR_WHITE, BOLD);
     _gap1 = gap1;
     // 타겟하단: 롱컨상태표시
     if (true) {
@@ -1312,7 +1312,7 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
             else qstr = "CRUISE";
         }
         else qstr = "MANUAL";
-        if (qstr != _qstr) ui_draw_text_a(s, x, y + 175, qstr.toStdString().c_str(), 40, COLOR_WHITE, BOLD);
+        if (qstr != _qstr) ui_draw_text_a(s, x, y + 225, qstr.toStdString().c_str(), 40, COLOR_RED, BOLD);
         _qstr = qstr;
 
     }
