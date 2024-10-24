@@ -723,7 +723,7 @@ class LongitudinalMpc:
           self.xState = XState.e2eCruise
           self.mpcEvent = EventName.trafficSignGreen
     #고속모드 또는 신호감지 일시정지: 신호정지 사용안함.
-    elif controls.myDrivingMode == 4 or self.trafficStopMode==0: 
+    elif controls.myDrivingMode in [1, 2, 3,4] or self.trafficStopMode==0: 
       if self.status:
         self.xState = XState.lead
       else:

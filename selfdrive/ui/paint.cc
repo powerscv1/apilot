@@ -1238,11 +1238,11 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
     int dxGap = -128 - 10 - 40;
     if (s->show_gap_info >= 0) {
         sprintf(str, "%.2f", tFollow);
-        ui_draw_text(s, x + dxGap + 15 - 60, y + 120.0, str, 30, COLOR_WHITE, BOLD);
+        ui_draw_text(s, x + dxGap + 15 - 60, y + 120.0, str, 40, COLOR_WHITE, BOLD);
         sprintf(str, "%.0fM", tFollow * v_ego + 6.0);
-        ui_draw_text(s, x + dxGap + 15 - 60, y + 155.0, str, 30, COLOR_WHITE, BOLD);
+        ui_draw_text(s, x + dxGap + 15 - 60, y + 155.0, str, 40, COLOR_WHITE, BOLD);
 
-        ui_draw_text(s, x + dxGap + 15, y + 120.0, strDrivingMode, 30, COLOR_WHITE, BOLD);
+        ui_draw_text(s, x + dxGap + 120, y + 180.0, strDrivingMode, 110, COLOR_GREEN, BOLD);
     }
     static int _myDrivingMode = 0;
     if (_myDrivingMode != myDrivingMode) ui_draw_text_a(s, x + dxGap + 15, y + 120, strDrivingMode, 30, COLOR_WHITE, BOLD);
@@ -1275,10 +1275,10 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
     // 갭정보표시 중앙위
     sprintf(str, "%d", gap1);
     if (s->show_gap_info >= 0) {        
-        ui_draw_text(s, x + dxGap + 15 + 60, y + 60, str, 150, COLOR_WHITE, BOLD);
+        ui_draw_text(s, x + dxGap + 15 + 60, y + 60, str, 110, COLOR_WHITE, BOLD);
     }
     static int _gap1 = 0;
-    if(_gap1 != gap1) ui_draw_text_a(s, x + dxGap + 15 + 60, y + 60, str, 150, COLOR_WHITE, BOLD);
+    if(_gap1 != gap1) ui_draw_text_a(s, x + dxGap + 15 + 60, y + 60, str, 110, COLOR_WHITE, BOLD);
     _gap1 = gap1;
     // 타겟하단: 롱컨상태표시
     if (true) {
