@@ -1242,7 +1242,7 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
         sprintf(str, "%.0fM", tFollow * v_ego + 6.0);
         ui_draw_text(s, x + dxGap + 15 - 60, y + 155.0, str, 40, COLOR_WHITE, BOLD);
 
-        ui_draw_text(s, x + dxGap + 120, y + 180.0, strDrivingMode, 110, COLOR_GREEN, BOLD);
+        ui_draw_text(s, x + dxGap - 200, y + 180.0, strDrivingMode, 110, COLOR_GREEN, BOLD);
     }
     static int _myDrivingMode = 0;
     if (_myDrivingMode != myDrivingMode) ui_draw_text_a(s, x + dxGap + 15, y + 120, strDrivingMode, 30, COLOR_WHITE, BOLD);
@@ -1615,10 +1615,10 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
             //drawTextWithColor(painter, bx - 80, by + 75, get_tpms_text(rl), tpmsColor);
             //tpmsColor = get_tpms_color(rr);
             //drawTextWithColor(painter, bx + 80, by + 75, get_tpms_text(rr), tpmsColor);
-            ui_draw_text(s, bx - 80, by - 50, get_tpms_text(fl), 38, get_tpms_color(fl), BOLD);
-            ui_draw_text(s, bx + 80, by - 50, get_tpms_text(fr), 38, get_tpms_color(fr), BOLD);
-            ui_draw_text(s, bx - 80, by + 75, get_tpms_text(rl), 38, get_tpms_color(rl), BOLD);
-            ui_draw_text(s, bx + 80, by + 75, get_tpms_text(rr), 38, get_tpms_color(rr), BOLD);
+            ui_draw_text(s, bx - 80, by - 50, get_tpms_text(fl), 58, get_tpms_color(fl), BOLD);
+            ui_draw_text(s, bx + 80, by - 50, get_tpms_text(fr), 58, get_tpms_color(fr), BOLD);
+            ui_draw_text(s, bx - 80, by + 75, get_tpms_text(rl), 58, get_tpms_color(rl), BOLD);
+            ui_draw_text(s, bx + 80, by + 75, get_tpms_text(rr), 58, get_tpms_color(rr), BOLD);
         }
         else {
             //int center_x = bx - 30;
@@ -1629,10 +1629,10 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
             //drawText2(painter, center_x + marginX, center_y - marginY - rcFont.height(), Qt::AlignLeft, get_tpms_text(fr), get_tpms_color(fr));
             //drawText2(painter, center_x - marginX, center_y + marginY, Qt::AlignRight, get_tpms_text(rl), get_tpms_color(rl));
             //drawText2(painter, center_x + marginX, center_y + marginY, Qt::AlignLeft, get_tpms_text(rr), get_tpms_color(rr));
-            ui_draw_text(s, bx - 90, by - 55, get_tpms_text(fl), 38, get_tpms_color(fl), BOLD);
-            ui_draw_text(s, bx + 90, by - 55, get_tpms_text(fr), 38, get_tpms_color(fr), BOLD);
-            ui_draw_text(s, bx - 90, by + 80, get_tpms_text(rl), 38, get_tpms_color(rl), BOLD);
-            ui_draw_text(s, bx + 90, by + 80, get_tpms_text(rr), 38, get_tpms_color(rr), BOLD);
+            ui_draw_text(s, bx - 90, by - 55, get_tpms_text(fl), 58, get_tpms_color(fl), BOLD);
+            ui_draw_text(s, bx + 90, by - 55, get_tpms_text(fr), 58, get_tpms_color(fr), BOLD);
+            ui_draw_text(s, bx - 90, by + 80, get_tpms_text(rl), 58, get_tpms_color(rl), BOLD);
+            ui_draw_text(s, bx + 90, by + 80, get_tpms_text(rr), 58, get_tpms_color(rr), BOLD);
         }
 
     }
