@@ -1232,7 +1232,7 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
     case 1: strcpy(strDrivingMode, "연비"); break;// "연비"; break;
     case 2: strcpy(strDrivingMode, "안전"); break;// "안전"; break;
     case 3: strcpy(strDrivingMode, "일반"); break;// "일반"; break;
-    case 4: strcpy(strDrivingMode, "고속"); break;// "고속"; break;
+    case 4: strcpy(strDrivingMode, "정체"); break;// "정체"; break;
     }
 
     int dxGap = -128 - 10 - 40;
