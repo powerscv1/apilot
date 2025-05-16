@@ -1666,8 +1666,8 @@ void DrawApilot::drawDeviceState(UIState* s, bool show) {
     auto deviceState = sm["deviceState"].getDeviceState();
     char  str[128];
     QString qstr;
-    const auto freeSpacePercent = deviceState.getFreeSpacePercent();
-    const auto memoryUsagePercent = deviceState.getMemoryUsagePercent();
+   // const auto freeSpacePercent = deviceState.getFreeSpacePercent();
+   //const auto memoryUsagePercent = deviceState.getMemoryUsagePercent();
 
     const auto cpuTempC = deviceState.getCpuTempC();
     //const auto gpuTempC = deviceState.getGpuTempC();
