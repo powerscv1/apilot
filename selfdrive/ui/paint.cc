@@ -1229,10 +1229,10 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
     switch (myDrivingMode)
     {
     case 0: strcpy(strDrivingMode,"GAP"); break;
-    case 1: strcpy(strDrivingMode, "연비"); break;// "연비"; break;
+    case 1: strcpy(strDrivingMode, "고속"); break;// "연비"; break;
     case 2: strcpy(strDrivingMode, "안전"); break;// "안전"; break;
     case 3: strcpy(strDrivingMode, "일반"); break;// "일반"; break;
-    case 4: strcpy(strDrivingMode, "정체"); break;// "정체"; break;
+    case 4: strcpy(strDrivingMode, "저속"); break;// "고속"; break;
     }
 
     int dxGap = -128 - 10 - 40;
@@ -1685,12 +1685,13 @@ void DrawApilot::drawDeviceState(UIState* s, bool show) {
     }
     auto car_state = sm["carState"].getCarState();
     //const cereal::ModelDataV2::Reader& model = sm["modelV2"].getModelV2();
-    sprintf(str, "MEM: %d%% STORAGE: %.0f%% CPU: %.0f°C AMBIENT: %.0f°C", memoryUsagePercent, freeSpacePercent, cpuTemp, ambientTemp);
+    sprintf(str, "CPU: %.0f°C AMBIENT: %.0f°C ", cpuTemp, ambientTemp);
+    //sprintf(str, "CPU: %.0f°C AMBIENT: %.0f°C MEM: %d%% STORAGE: %.0f%%", cpuTemp, ambientTemp, memoryUsagePercent, freeSpacePercent);
     int r = interp<float>(cpuTemp, { 50.f, 90.f }, { 200.f, 255.f }, false);
     int g = interp<float>(cpuTemp, { 50.f, 90.f }, { 255.f, 200.f }, false);
     NVGcolor textColor = nvgRGBA(r, g, 200, 255);
     if (s->fb_w > 1200 && show) {
-        ui_draw_text(s, s->fb_w - 20, 35, str, 35, textColor, BOLD);
+        ui_draw_text(s, s->fb_w - 20, 35, str, 100, textColor, BOLD);
         float engineRpm = car_state.getEngineRpm();
         float motorRpm = car_state.getMotorRpm();
         sprintf(str, "FPS: %d, %s: %.0f CHARGE: %.0f%%                      ", g_fps, (motorRpm > 0.0) ? "MOTOR" : "RPM", (motorRpm > 0.0) ? motorRpm : engineRpm, car_state.getChargeMeter());
