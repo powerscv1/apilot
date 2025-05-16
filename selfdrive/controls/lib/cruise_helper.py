@@ -683,7 +683,7 @@ class CruiseHelper:
         v_cruise_kph = buttonSpeed
       elif button == ButtonType.gapAdjustCruise:  ##안먹네.... 나중에 보자~
         #myDrivingMode = int(Params().get("MyDrivingMode"))
-        self.myDrivingMode = self.myDrivingMode + 1 if self.myDrivingMode < 4 else 1
+        self.myDrivingMode = self.myDrivingMode + 1 if self.myDrivingMode < 3 else 1
         self.drivingModeIndex = -100.0
         #Params().put("MyDrivingMode", str(myDrivingMode))
     else:
