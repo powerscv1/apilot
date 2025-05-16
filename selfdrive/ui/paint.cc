@@ -1229,10 +1229,10 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
     switch (myDrivingMode)
     {
     case 0: strcpy(strDrivingMode,"GAP"); break;
-    case 1: strcpy(strDrivingMode, "고속"); break;// "연비"; break;
-    case 2: strcpy(strDrivingMode, "안전"); break;// "안전"; break;
-    case 3: strcpy(strDrivingMode, "일반"); break;// "일반"; break;
-    case 4: strcpy(strDrivingMode, "저속"); break;// "고속"; break;
+    case 1: strcpy(strDrivingMode, "고속도로"); break;// "연비"; break;
+    case 2: strcpy(strDrivingMode, "안전운전"); break;// "안전"; break;
+    case 3: strcpy(strDrivingMode, "저속구간"); break;// "일반"; break;
+    case 4: strcpy(strDrivingMode, "4번"); break;// "고속"; break;
     }
 
     int dxGap = -128 - 10 - 40;
@@ -1242,7 +1242,7 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
         sprintf(str, "%.0fM", tFollow * v_ego + 6.0);
         ui_draw_text(s, x + dxGap + 15 - 60, y + 155.0, str, 40, COLOR_WHITE, BOLD);
 
-        ui_draw_text(s, x + dxGap - 200, y + 180.0, strDrivingMode, 110, COLOR_GREEN, BOLD);
+        ui_draw_text(s, x + dxGap - 250, y + 180.0, strDrivingMode, 85, COLOR_GREEN, BOLD);
     }
     static int _myDrivingMode = 0;
     if (_myDrivingMode != myDrivingMode) ui_draw_text_a(s, x + dxGap + 15, y + 120, strDrivingMode, 30, COLOR_WHITE, BOLD);
