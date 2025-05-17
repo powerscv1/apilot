@@ -1229,9 +1229,9 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
     switch (myDrivingMode)
     {
     case 0: strcpy(strDrivingMode,"GAP"); break;
-    case 1: strcpy(strDrivingMode, "고속도로"); break;// "연비"; break;
-    case 2: strcpy(strDrivingMode, "안전운전"); break;// "안전"; break;
-    case 3: strcpy(strDrivingMode, "저속구간"); break;// "일반"; break;
+    case 1: strcpy(strDrivingMode, "고속"); break;// "연비"; break;
+    case 2: strcpy(strDrivingMode, "안전"); break;// "안전"; break;
+    case 3: strcpy(strDrivingMode, "저속"); break;// "일반"; break;
     case 4: strcpy(strDrivingMode, "4번"); break;// "고속"; break;
     }
 
@@ -1261,7 +1261,7 @@ void DrawApilot::drawLeadApilot(const UIState* s) {
         static int _preGap = 0;
         if (_preGap != gap) {
             sprintf(str, "%d", (int)gap);
-            ui_draw_text_a(s, x + dxGap + 15 + 60, y + 60, str, 50, COLOR_WHITE, BOLD);
+            ui_draw_text_a(s, x + dxGap + 15 + 60, y + 60, str, 60, COLOR_WHITE, BOLD);
         }
         _preGap = gap;
 #endif
@@ -1692,14 +1692,14 @@ void DrawApilot::drawDeviceState(UIState* s, bool show) {
     NVGcolor textColor = nvgRGBA(r, g, 200, 255);
     if (s->fb_w > 1200 && show) {
         ui_draw_text(s, s->fb_w - 120, 90, str, 85, textColor, BOLD);
-        float engineRpm = car_state.getEngineRpm();
-        float motorRpm = car_state.getMotorRpm();
-        sprintf(str, "FPS: %d, %s: %.0f CHARGE: %.0f%%                      ", g_fps, (motorRpm > 0.0) ? "MOTOR" : "RPM", (motorRpm > 0.0) ? motorRpm : engineRpm, car_state.getChargeMeter());
-        ui_draw_text(s, s->fb_w - 5, 130, str, 25, textColor, BOLD);
+    //    float engineRpm = car_state.getEngineRpm();
+    //    float motorRpm = car_state.getMotorRpm();
+    //    sprintf(str, "FPS: %d, %s: %.0f CHARGE: %.0f%%                      ", g_fps, (motorRpm > 0.0) ? "MOTOR" : "RPM", (motorRpm > 0.0) ? motorRpm : engineRpm, car_state.getChargeMeter());
+    //    ui_draw_text(s, s->fb_w - 5, 130, str, 25, textColor, BOLD);
     }
     qstr = QString::fromStdString(deviceState.getWifiIpAddress().cStr());
     nvgTextAlign(s->vg, NVG_ALIGN_RIGHT | NVG_ALIGN_BOTTOM);
-    ui_draw_text(s, s->fb_w - 20, s->fb_h - 15, qstr.toStdString().c_str(), 30, COLOR_WHITE, BOLD, 0.0f, 0.0f);
+    ui_draw_text(s, s->fb_w - 20, s->fb_h - 15, qstr.toStdString().c_str(), 38, COLOR_WHITE, BOLD, 0.0f, 0.0f);
 
 }
 void DrawApilot::drawDebugText(UIState* s, bool show) {
