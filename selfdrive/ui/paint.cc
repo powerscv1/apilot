@@ -1692,10 +1692,10 @@ void DrawApilot::drawDeviceState(UIState* s, bool show) {
     NVGcolor textColor = nvgRGBA(r, g, 200, 255);
     if (s->fb_w > 1200 && show) {
         ui_draw_text(s, s->fb_w - 120, 90, str, 85, textColor, BOLD);
-    //    float engineRpm = car_state.getEngineRpm();
-    //    float motorRpm = car_state.getMotorRpm();
-    //    sprintf(str, "FPS: %d, %s: %.0f CHARGE: %.0f%%                      ", g_fps, (motorRpm > 0.0) ? "MOTOR" : "RPM", (motorRpm > 0.0) ? motorRpm : engineRpm, car_state.getChargeMeter());
-    //    ui_draw_text(s, s->fb_w - 5, 130, str, 25, textColor, BOLD);
+   float engineRpm = car_state.getEngineRpm();
+   float motorRpm = car_state.getMotorRpm();
+   sprintf(str, "FPS: %d, %s: %.0f CHARGE: %.0f%%                      ", g_fps, (motorRpm > 0.0) ? "MOTOR" : "RPM", (motorRpm > 0.0) ? motorRpm : engineRpm, car_state.getChargeMeter());
+    ui_draw_text(s, s->fb_w - 5, 130, str, 25, textColor, BOLD);
     }
     qstr = QString::fromStdString(deviceState.getWifiIpAddress().cStr());
     nvgTextAlign(s->vg, NVG_ALIGN_RIGHT | NVG_ALIGN_BOTTOM);
